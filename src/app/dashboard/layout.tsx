@@ -6,7 +6,7 @@ import { MobileTabs } from "@/components/layout/mobile-tabs";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const user = await getUser();
-  if (!user) redirect("/login");
+  if (!user) redirect("/api/auth/clear-session");
   if (user.mustChangePassword) redirect("/account?force=1");
   return (
     <div className="flex min-h-screen flex-col">

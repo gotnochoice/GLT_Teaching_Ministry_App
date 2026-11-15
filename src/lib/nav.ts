@@ -1,6 +1,6 @@
 import {
   LayoutDashboard, BookOpen, ClipboardList, Calendar, Users, GraduationCap,
-  HandHeart, Megaphone, Settings, Layers, CheckSquare, UserCircle, Briefcase, Heart, Inbox, History, type LucideIcon,
+  HandHeart, Megaphone, Settings, Layers, CheckSquare, UserCircle, Briefcase, Heart, Inbox, History, KeyRound, type LucideIcon,
 } from "lucide-react";
 import type { Role } from "./utils";
 
@@ -37,6 +37,7 @@ export const NAV: Record<Role, NavItem[]> = {
     { href: "/dashboard/admin/curriculum", label: "Curriculum & Tests", icon: BookOpen },
     { href: "/dashboard/admin/graduation", label: "Graduation", icon: GraduationCap },
     { href: "/dashboard/admin/announcements", label: "Announcements", icon: Megaphone },
+    { href: "/dashboard/admin/password-resets", label: "Password Resets", icon: KeyRound },
     { href: "/dashboard/admin/audit", label: "Audit Log", icon: History },
     { href: "/dashboard/admin/settings", label: "Settings", icon: Settings },
   ],

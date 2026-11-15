@@ -40,7 +40,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
     async session({ session, token }) {
       if (session.user) {
-        Object.assign(session.user, { role: token.role, id: token.id });
+        Object.assign(session.user, { role: token.role, id: token.id, iat: token.iat });
       }
       return session;
     },

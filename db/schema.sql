@@ -98,6 +98,20 @@ CREATE TABLE IF NOT EXISTS notification_log (
   key text PRIMARY KEY, channel text NOT NULL, created_at text DEFAULT (now() AT TIME ZONE 'UTC')::text
 );
 
+-- Forgot password: one-time reset tokens (only a hash is stored) and "please help me reset" requests.
+ALTER TABLE users ADD COLUMN IF NOT EXISTS password_changed_at text;
+CREATE TABLE IF NOT EXISTS password_resets (
+  id text PRIMARY KEY, user_id text NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  token_hash text NOT NULL UNIQUE, expires_at text NOT NULL, used_at text,
+  created_by text, created_at text DEFAULT (now() AT TIME ZONE 'UTC')::text
+);
+CREATE INDEX IF NOT EXISTS password_resets_user_idx ON password_resets (user_id);
+CREATE TABLE IF NOT EXISTS reset_requests (
+  id text PRIMARY KEY, user_id text NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  status text NOT NULL DEFAULT 'pending', handled_by text, handled_at text,
+  created_at text DEFAULT (now() AT TIME ZONE 'UTC')::text
+);
+
 -- The audit log can never be edited or deleted, even by the app.
 CREATE OR REPLACE FUNCTION audit_log_immutable() RETURNS trigger AS $$
 BEGIN RAISE EXCEPTION 'audit_log is append-only'; END; $$ LANGUAGE plpgsql;
@@ -160,7 +174,7 @@ DECLARE t text;
 BEGIN
   FOREACH t IN ARRAY ARRAY['users','courses','cohorts','students','class_sessions','attendance','assessments',
     'results','requirement_logs','settings','announcements','applications','internships','internship_logs',
-    'care_requests','care_notes','audit_log','notification_log','matric_counters']
+    'care_requests','care_notes','audit_log','notification_log','matric_counters','password_resets','reset_requests']
   LOOP EXECUTE format('ALTER TABLE public.%I ENABLE ROW LEVEL SECURITY', t); END LOOP;
 END $$;
 

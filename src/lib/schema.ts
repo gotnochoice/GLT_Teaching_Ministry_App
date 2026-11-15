@@ -14,6 +14,7 @@ export const users = pgTable("users", {
   mustChangePassword: boolean("must_change_password").default(false).notNull(),
   notifyEmail: boolean("notify_email").default(true).notNull(),
   notifyWhatsapp: boolean("notify_whatsapp").default(true).notNull(),
+  passwordChangedAt: text("password_changed_at"), // set on a forgot-password reset: older sessions stop working
   createdAt: now(),
 });
 
@@ -211,5 +212,26 @@ export const auditLog = pgTable("audit_log", {
 export const notificationLog = pgTable("notification_log", {
   key: text("key").primaryKey(),
   channel: text("channel").notNull(),
+  createdAt: now(),
+});
+
+/** One-time forgot-password tokens. Only the SHA-256 hash is stored, never the token itself. */
+export const passwordResets = pgTable("password_resets", {
+  id: text("id").primaryKey(),
+  userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  tokenHash: text("token_hash").notNull().unique(),
+  expiresAt: text("expires_at").notNull(),
+  usedAt: text("used_at"),
+  createdBy: text("created_by"), // admin user id, or null when the user asked for it themselves
+  createdAt: now(),
+});
+
+/** "I forgot my password" requests that an admin can act on (needed while email is not connected). */
+export const resetRequests = pgTable("reset_requests", {
+  id: text("id").primaryKey(),
+  userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  status: text("status").default("pending").notNull(), // pending | handled
+  handledBy: text("handled_by"),
+  handledAt: text("handled_at"),
   createdAt: now(),
 });

@@ -1,5 +1,5 @@
 "use server";
-import { and, eq, gt, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { randomInt, randomUUID } from "crypto";
 import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
@@ -34,8 +34,7 @@ export async function submitApplication(_prev: JoinState, formData: FormData): P
   const d = parsed.data;
 
   // Global throttle: at most 40 new requests per hour across the whole site.
-  const since = new Date(Date.now() - 3600_000).toISOString();
-  const [{ n }] = await db.select({ n: sql<number>`count(*)::int` }).from(applications).where(gt(applications.createdAt, since));
+  const [{ n }] = await db.select({ n: sql<number>`count(*)::int` }).from(applications).where(sql`${applications.createdAt}::timestamp > (now() at time zone 'utc') - interval '1 hour'`);
   if (n >= 40) return { error: "We are receiving a lot of requests right now. Please try again later." };
 
   const [existingUser] = await db.select({ id: users.id }).from(users).where(eq(users.email, d.email));

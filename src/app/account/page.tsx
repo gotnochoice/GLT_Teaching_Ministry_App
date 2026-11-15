@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label";
 
 export default async function AccountPage({ searchParams }: { searchParams: Promise<{ force?: string }> }) {
   const user = await getUser();
-  if (!user) redirect("/login");
+  if (!user) redirect("/api/auth/clear-session");
   const { force } = await searchParams;
   const forced = user.mustChangePassword;
   const [u] = await db.select().from(users).where(eq(users.id, user.id));

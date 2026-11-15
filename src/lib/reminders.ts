@@ -4,6 +4,8 @@ import { assessments, classSessions, cohorts, courses, requirementLogs, results,
 import { notify } from "./notify";
 import { APP_NAME } from "./utils";
 
+/** DB-default timestamps look like "2026-11-12 23:00:00"; make them ISO so they compare correctly with toISOString() values. */
+const iso = (t: string | null | undefined) => (t ?? "").replace(" ", "T");
 const dayISO = (offset: number) => new Date(Date.now() + offset * 86400_000).toISOString().split("T")[0];
 
 type Counts = { sessionReminders: number; dueReminders: number; teacherDigests: number };
@@ -49,8 +51,8 @@ export async function runReminders(): Promise<Counts> {
     const mine = activeStudents.filter((r) => leads.some((l) => l.u.id === u.id && l.c.id === r.s.cohortId)).map((r) => r.s.id);
     if (!mine.length) continue;
     const grade = (await db.select().from(results).where(and(inArray(results.studentId, mine), eq(results.status, "submitted")))).filter((r) => (r.submittedAt ?? "") < cutoff).length;
-    const logs = (await db.select().from(requirementLogs).where(and(inArray(requirementLogs.studentId, mine), eq(requirementLogs.status, "pending")))).filter((r) => (r.createdAt ?? "") < cutoff).length;
-    const hours = (await db.select().from(internshipLogs).where(and(inArray(internshipLogs.studentId, mine), eq(internshipLogs.status, "pending")))).filter((r) => (r.createdAt ?? "") < cutoff).length;
+    const logs = (await db.select().from(requirementLogs).where(and(inArray(requirementLogs.studentId, mine), eq(requirementLogs.status, "pending")))).filter((r) => iso(r.createdAt) < cutoff).length;
+    const hours = (await db.select().from(internshipLogs).where(and(inArray(internshipLogs.studentId, mine), eq(internshipLogs.status, "pending")))).filter((r) => iso(r.createdAt) < cutoff).length;
     const makeups = (await db.select().from(attendance).where(and(inArray(attendance.studentId, mine), eq(attendance.status, "makeup_pending")))).length;
     if (grade + logs + hours + makeups === 0) continue;
     const r = await notify(toRecipient(u), `digest:${u.id}:${dayISO(0)}`, `${APP_NAME}: waiting for you`,
