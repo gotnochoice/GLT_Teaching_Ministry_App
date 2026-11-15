@@ -46,3 +46,4 @@ dev.db
 
 .env*
 !.env.example
+GLT_full_setup.sql
