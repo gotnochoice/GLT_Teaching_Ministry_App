@@ -44,13 +44,25 @@ export default async function StudentHome() {
         description={`${student.matricNo ?? "No matric number yet"} · ${cohort ? `${cohort.name} · ${cohort.mode}` : "not placed in a cohort yet"}`}
         action={student.status === "graduated" ? <Badge variant="orange">Graduated {formatDate(student.graduatedAt)}</Badge> : undefined}
       />
-      <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4 max-sm:[&>*:last-child:nth-child(odd)]:col-span-2 auto-rows-fr">
+            {/* Phones: one roomy summary card instead of four cramped tiles */}
+      <div className="mb-6 overflow-hidden rounded-2xl bg-brand p-5 text-white sm:hidden">
+        <p className="text-sm text-white/80">Current class</p>
+        <p className="mt-1 text-4xl font-bold leading-none">{student.currentClass}<span className="ml-1.5 text-lg font-medium text-white/75">of {TOTAL_CLASSES}</span></p>
+        {current && <p className="mt-2 text-sm font-medium text-white/90">{current.title}</p>}
+        <div className="mt-5 h-2 overflow-hidden rounded-full bg-white/25"><div className="h-full rounded-full bg-white" style={{ width: `${(p.classesCompleted / TOTAL_CLASSES) * 100}%` }} /></div>
+        <p className="mt-2 text-xs text-white/80">{p.classesCompleted} of {TOTAL_CLASSES} classes passed · pass mark {p.rules.passMark}%</p>
+        <div className="mt-5 grid grid-cols-2 gap-4 border-t border-white/25 pt-4">
+          <div><p className="text-xs text-white/75">Overall grade</p><p className="mt-1 text-2xl font-bold">{p.overall === null ? "—" : `${p.overall}%`}</p></div>
+          <div><p className="text-xs text-white/75">Prayer · Evangelism</p><p className="mt-1 text-2xl font-bold">{p.prayers.verified}/{p.prayers.required} · {p.evangelism.verified}/{p.evangelism.required}</p><p className="text-[11px] text-white/70">verified, not graded</p></div>
+        </div>
+      </div>
+<div className="max-sm:hidden mb-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4 max-sm:[&>*:last-child:nth-child(odd)]:col-span-2 auto-rows-fr">
         <StatCard icon={BookOpen} tone="brand" label="Current class" value={`${student.currentClass} of ${TOTAL_CLASSES}`} sub={current?.title} />
         <StatCard icon={CheckCircle2} tone="brand" label="Classes passed" value={p.classesCompleted} sub={`Pass mark ${p.rules.passMark}%`} />
         <StatCard icon={Trophy} tone="amber" label="Overall grade" value={p.overall === null ? "—" : `${p.overall}%`} accent />
         <StatCard icon={HandHeart} tone="blue" label="Prayer / Evangelism" value={`${p.prayers.verified}/${p.prayers.required} · ${p.evangelism.verified}/${p.evangelism.required}`} sub="Verified (not graded)" />
       </div>
-      <Card className="mb-6">
+      <Card className="mb-6 max-sm:hidden">
         <CardContent className="p-5">
           <div className="mb-2 flex justify-between text-sm"><span className="font-medium">Class progress</span><span className="text-gray-500">{p.classesCompleted}/{TOTAL_CLASSES}</span></div>
           <ProgressBar value={p.classesCompleted} max={TOTAL_CLASSES} />
@@ -59,12 +71,12 @@ export default async function StudentHome() {
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader><CardTitle className="text-base">Graduation checklist</CardTitle></CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="divide-y divide-gray-100 px-5 pb-3 pt-0 sm:px-6">
             {checklist.map((c) => (
-              <div key={c.label} className="flex items-center gap-3 text-sm">
+              <div key={c.label} className="flex items-center gap-3 py-3.5 text-sm">
                 {c.done ? <CheckCircle2 className="h-5 w-5 text-green-600" /> : <Circle className="h-5 w-5 text-gray-300" />}
                 <span className="flex-1 font-medium">{c.label}</span>
-                <span className="text-gray-500">{c.detail}</span>
+                <span className="text-right text-gray-500">{c.detail}</span>
               </div>
             ))}
           </CardContent>

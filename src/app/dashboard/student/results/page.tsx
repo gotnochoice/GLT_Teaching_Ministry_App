@@ -22,7 +22,19 @@ export default async function StudentResults() {
         <StatCard icon={CheckCircle2} tone="brand" label="Classes passed" value={`${p.classesCompleted}/9`} />
         <StatCard icon={GraduationCap} tone="blue" label="Graduation" value={p.eligibleToGraduate ? "Eligible" : "In progress"} sub={p.missing[0]} />
       </div>
-      <Card><CardContent className="overflow-x-auto p-0">
+      <div className="space-y-2 sm:hidden">
+        {rows.map((r) => (
+          <div key={r.assessmentId} className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3.5">
+            <div className="min-w-0 flex-1"><p className="text-sm font-medium text-gray-900">{r.title}</p><p className="text-xs text-gray-500">{r.group}</p></div>
+            <div className="shrink-0 text-right">
+              {r.status === "graded"
+                ? <><p className={r.passed ? "text-sm font-semibold text-green-700" : "text-sm font-semibold text-red-600"}>{r.score}/{r.maxScore}</p><p className="text-xs text-gray-500">{r.pct}%</p></>
+                : <StatusBadge status={r.status} />}
+            </div>
+          </div>
+        ))}
+      </div>
+      <Card className="hidden sm:block"><CardContent className="overflow-x-auto p-0">
         <table className="w-full text-sm">
           <thead className="border-b bg-gray-50 text-left text-xs uppercase text-gray-500"><tr><th className="px-4 py-3">For</th><th className="px-4 py-3">Assessment</th><th className="px-4 py-3">Status</th><th className="px-4 py-3 text-right">Score</th></tr></thead>
           <tbody className="divide-y">
