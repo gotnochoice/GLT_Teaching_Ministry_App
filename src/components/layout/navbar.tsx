@@ -17,6 +17,13 @@ export function Navbar({ user }: { user?: { name: string; role: Role; isPastor?:
     window.addEventListener("open-menu", openMenu);
     return () => window.removeEventListener("open-menu", openMenu);
   }, []);
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
+    window.addEventListener("keydown", onKey);
+    document.body.style.overflow = "hidden";
+    return () => { window.removeEventListener("keydown", onKey); document.body.style.overflow = ""; };
+  }, [open]);
   const nav = user ? [...NAV[user.role], ...(user.isPastor ? [PASTOR_NAV] : [])] : [];
   const firstName = user?.name.split(" ")[0] ?? "";
 
@@ -24,10 +31,21 @@ export function Navbar({ user }: { user?: { name: string; role: Role; isPastor?:
     <>
       <nav className="sticky top-0 z-50 border-b border-gray-200 bg-white print:hidden">
         <div className="flex h-14 w-full items-center justify-between px-6">
-          <Link href={user ? dashboardPath(user.role) : "/"} className="flex shrink-0 items-center gap-2.5">
-            <Image src="/logo.jpg" alt="GLT" width={32} height={32} className="h-8 w-8 rounded-full object-cover" priority />
-            <span className="text-base font-bold tracking-tight text-brand"><span className="hidden md:inline">{APP_NAME}</span><span className="md:hidden">{APP_SHORT_NAME}</span></span>
-          </Link>
+          <div className="flex min-w-0 items-center gap-1 sm:gap-2">
+            {user && (
+              <button
+                className="-ml-2 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-gray-600 hover:bg-gray-100 lg:hidden"
+                onClick={() => setOpen(true)}
+                aria-label="Open menu"
+              >
+                <Menu className="h-5 w-5" />
+              </button>
+            )}
+            <Link href={user ? dashboardPath(user.role) : "/"} className="flex min-w-0 shrink-0 items-center gap-2.5">
+              <Image src="/logo.jpg" alt="GLT" width={32} height={32} className="h-8 w-8 rounded-full object-cover" priority />
+              <span className="text-base font-bold tracking-tight text-brand"><span className="hidden md:inline">{APP_NAME}</span><span className="md:hidden">{APP_SHORT_NAME}</span></span>
+            </Link>
+          </div>
 
           {user ? (
             <>
@@ -48,13 +66,9 @@ export function Navbar({ user }: { user?: { name: string; role: Role; isPastor?:
                   <LogOut className="h-3.5 w-3.5" /> Sign out
                 </button>
               </div>
-              <button
-                className="flex h-9 w-9 items-center justify-center rounded-lg text-gray-600 hover:bg-gray-100 lg:hidden"
-                onClick={() => setOpen(true)}
-                aria-label="Open menu"
-              >
-                <Menu className="h-5 w-5" />
-              </button>
+              <Link href="/account" aria-label="My account" className="flex h-8 w-8 items-center justify-center rounded-full bg-brand text-xs font-bold text-white lg:hidden">
+                {firstName.charAt(0).toUpperCase()}
+              </Link>
             </>
           ) : (
             <Link href="/login"><Button variant="ghost" size="sm">Log in</Button></Link>
@@ -65,7 +79,7 @@ export function Navbar({ user }: { user?: { name: string; role: Role; isPastor?:
       {open && user && (
         <div className="fixed inset-0 z-50 lg:hidden" onClick={() => setOpen(false)}>
           <div className="absolute inset-0 bg-black/40" />
-          <div className="absolute right-0 top-0 flex h-full w-72 flex-col bg-white shadow-xl" onClick={(e) => e.stopPropagation()}>
+          <div className="animate-slide-in-left absolute left-0 top-0 flex h-full w-72 max-w-[85vw] flex-col bg-white shadow-xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between border-b border-gray-100 px-4 py-4">
               <div>
                 <p className="text-sm font-semibold text-gray-900">{user.name}</p>
