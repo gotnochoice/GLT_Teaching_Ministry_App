@@ -9,6 +9,7 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "db:init": "tsx scripts/init-db.ts",
+    "db:sql": "tsx scripts/export-sql.ts",
     "db:seed": "tsx scripts/seed.ts",
     "db:reset": "tsx scripts/init-db.ts && tsx scripts/seed.ts"
   },
