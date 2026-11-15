@@ -26,9 +26,15 @@ const DEFAULTS: Record<string, string> = {
   internship_hours_required: "20",
 };
 
+/** Used on PUBLIC pages, so a database problem must never take the landing/join page down. */
 export async function getOfficeWhatsapp(): Promise<string | null> {
-  const [row] = await db.select().from(settings).where(eq(settings.key, "office_whatsapp"));
-  return row?.value || null;
+  try {
+    const [row] = await db.select().from(settings).where(eq(settings.key, "office_whatsapp"));
+    return row?.value || null;
+  } catch (e) {
+    console.error("getOfficeWhatsapp failed (is the database initialised? run npm run db:init)", e);
+    return null;
+  }
 }
 
 export async function getRules(): Promise<Rules> {
