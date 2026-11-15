@@ -13,6 +13,11 @@ export type Role = (typeof ROLES)[number];
 
 export const TOTAL_CLASSES = 9;
 
+/** How a class is named on screen: its code (e.g. "MMC 101") when set, otherwise "Class 1". */
+export function classLabel(c: { code?: string | null; number: number }) {
+  return c.code?.trim() || `Class ${c.number}`;
+}
+
 export function dashboardPath(role?: string) {
   return role ? `/dashboard/${role.toLowerCase()}` : "/";
 }

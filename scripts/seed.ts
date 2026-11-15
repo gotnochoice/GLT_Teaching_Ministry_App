@@ -4,6 +4,7 @@ import { randomUUID as uid } from "crypto";
 import { DDL } from "./schema-sql";
 
 // Placeholder curriculum — rename in Admin → Curriculum or edit here.
+const CODES = ["MMC 101", "MMC 102", "MMC 103", "BFC 201", "BFC 202", "BFC 203", "BFC 204", "BFC 205", "BFC 206"];
 const CLASSES: [string, string][] = [
   ["Foundations of Faith", "Salvation, assurance, and the new birth."],
   ["Knowing the Bible", "How to read, study and apply Scripture."],
@@ -36,9 +37,9 @@ async function main() {
   for (const [i, [title, description]] of CLASSES.entries()) {
     const id = `course-${i + 1}`;
     courseIds.push(id);
-    await q("INSERT INTO courses(id,number,title,description) VALUES($1,$2,$3,$4) ON CONFLICT DO NOTHING", [id, i + 1, title, description]);
-    await q("INSERT INTO assessments(id,course_id,kind,title) VALUES($1,$2,'TEST',$3) ON CONFLICT DO NOTHING", [`test-${i + 1}`, id, `Class ${i + 1} Test`]);
-    await q("INSERT INTO assessments(id,course_id,kind,title) VALUES($1,$2,'ASSIGNMENT',$3) ON CONFLICT DO NOTHING", [`assign-${i + 1}`, id, `Class ${i + 1} Assignment`]);
+    await q("INSERT INTO courses(id,number,code,title,description) VALUES($1,$2,$3,$4,$5) ON CONFLICT DO NOTHING", [id, i + 1, CODES[i], title, description]);
+    await q("INSERT INTO assessments(id,course_id,kind,title) VALUES($1,$2,'TEST',$3) ON CONFLICT DO NOTHING", [`test-${i + 1}`, id, `${CODES[i]} Test`]);
+    await q("INSERT INTO assessments(id,course_id,kind,title) VALUES($1,$2,'ASSIGNMENT',$3) ON CONFLICT DO NOTHING", [`assign-${i + 1}`, id, `${CODES[i]} Assignment`]);
   }
   await q("INSERT INTO assessments(id,kind,title,instructions) VALUES('exam','EXAM','Final Exam','Covers all nine classes.') ON CONFLICT DO NOTHING");
   await q("INSERT INTO assessments(id,kind,title,instructions) VALUES('internship','INTERNSHIP','Ministry Internship','Serve in a ministry unit; your supervisor submits your assessment.') ON CONFLICT DO NOTHING");

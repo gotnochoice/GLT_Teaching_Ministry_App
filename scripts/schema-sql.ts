@@ -52,6 +52,7 @@ CREATE TABLE IF NOT EXISTS announcements (
   id text PRIMARY KEY, title text NOT NULL, body text NOT NULL, created_by text REFERENCES users(id),
   created_at text DEFAULT (now() AT TIME ZONE 'UTC')::text
 );
+ALTER TABLE courses ADD COLUMN IF NOT EXISTS code text;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS is_pastor boolean NOT NULL DEFAULT false;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS must_change_password boolean NOT NULL DEFAULT false;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS notify_email boolean NOT NULL DEFAULT true;
@@ -139,23 +140,32 @@ END $$;
 
 -- Starter data (safe to re-run: never overwrites anything an admin has edited).
 -- The 9 class titles are placeholders: rename them in Admin -> Curriculum.
-INSERT INTO courses (id, number, title, description) VALUES
-  ('course-1', 1, 'Foundations of Faith', 'Salvation, assurance, and the new birth.'),
-  ('course-2', 2, 'Knowing the Bible', 'How to read, study and apply Scripture.'),
-  ('course-3', 3, 'Prayer & Fellowship with God', 'Building a daily prayer life.'),
-  ('course-4', 4, 'The Holy Spirit', 'Who the Holy Spirit is and how He works in the believer.'),
-  ('course-5', 5, 'Walking in Holiness', 'Character, repentance and spiritual disciplines.'),
-  ('course-6', 6, 'The Church & Community', 'Belonging, serving and honouring leadership.'),
-  ('course-7', 7, 'Evangelism & Witnessing', 'Sharing the gospel with confidence.'),
-  ('course-8', 8, 'Stewardship & Giving', 'Time, talent and treasure.'),
-  ('course-9', 9, 'Purpose, Calling & Ministry', 'Discovering and serving in your gift.')
+INSERT INTO courses (id, number, code, title, description) VALUES
+  ('course-1', 1, 'MMC 101', 'Foundations of Faith', 'Salvation, assurance, and the new birth.'),
+  ('course-2', 2, 'MMC 102', 'Knowing the Bible', 'How to read, study and apply Scripture.'),
+  ('course-3', 3, 'MMC 103', 'Prayer & Fellowship with God', 'Building a daily prayer life.'),
+  ('course-4', 4, 'BFC 201', 'The Holy Spirit', 'Who the Holy Spirit is and how He works in the believer.'),
+  ('course-5', 5, 'BFC 202', 'Walking in Holiness', 'Character, repentance and spiritual disciplines.'),
+  ('course-6', 6, 'BFC 203', 'The Church & Community', 'Belonging, serving and honouring leadership.'),
+  ('course-7', 7, 'BFC 204', 'Evangelism & Witnessing', 'Sharing the gospel with confidence.'),
+  ('course-8', 8, 'BFC 205', 'Stewardship & Giving', 'Time, talent and treasure.'),
+  ('course-9', 9, 'BFC 206', 'Purpose, Calling & Ministry', 'Discovering and serving in your gift.')
+ON CONFLICT DO NOTHING;
+UPDATE courses SET code = CASE number
+  WHEN 1 THEN 'MMC 101' WHEN 2 THEN 'MMC 102' WHEN 3 THEN 'MMC 103'
+  WHEN 4 THEN 'BFC 201' WHEN 5 THEN 'BFC 202' WHEN 6 THEN 'BFC 203'
+  WHEN 7 THEN 'BFC 204' WHEN 8 THEN 'BFC 205' WHEN 9 THEN 'BFC 206' END
+WHERE code IS NULL AND id = 'course-' || number;
+INSERT INTO assessments (id, course_id, kind, title)
+  SELECT 'test-' || number, id, 'TEST', COALESCE(code, 'Class ' || number) || ' Test' FROM courses WHERE id LIKE 'course-%'
 ON CONFLICT DO NOTHING;
 INSERT INTO assessments (id, course_id, kind, title)
-  SELECT 'test-' || number, id, 'TEST', 'Class ' || number || ' Test' FROM courses WHERE id LIKE 'course-%'
+  SELECT 'assign-' || number, id, 'ASSIGNMENT', COALESCE(code, 'Class ' || number) || ' Assignment' FROM courses WHERE id LIKE 'course-%'
 ON CONFLICT DO NOTHING;
-INSERT INTO assessments (id, course_id, kind, title)
-  SELECT 'assign-' || number, id, 'ASSIGNMENT', 'Class ' || number || ' Assignment' FROM courses WHERE id LIKE 'course-%'
-ON CONFLICT DO NOTHING;
+UPDATE assessments a SET title = c.code || CASE a.kind WHEN 'TEST' THEN ' Test' ELSE ' Assignment' END
+  FROM courses c
+  WHERE a.course_id = c.id AND c.code IS NOT NULL AND a.kind IN ('TEST', 'ASSIGNMENT')
+    AND a.title = 'Class ' || c.number || CASE a.kind WHEN 'TEST' THEN ' Test' ELSE ' Assignment' END;
 INSERT INTO assessments (id, kind, title, instructions) VALUES
   ('exam', 'EXAM', 'Final Exam', 'Covers all nine classes.'),
   ('internship', 'INTERNSHIP', 'Ministry Internship', 'Serve in a ministry unit; your supervisor submits your assessment.')

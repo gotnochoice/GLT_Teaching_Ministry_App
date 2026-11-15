@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { PageHeader } from "@/components/ui/misc";
+import { classLabel } from "@/lib/utils";
 import type { assessments as A } from "@/lib/schema";
 
 function AssessmentForm({ a }: { a: typeof A.$inferSelect }) {
@@ -35,11 +36,11 @@ export default async function AdminCurriculum() {
       <div className="space-y-6">
         {cs.map((c) => (
           <Card key={c.id}>
-            <CardHeader><CardTitle className="text-base">Class {c.number}</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="text-base">{classLabel(c)} <span className="text-sm font-normal text-gray-400">· class {c.number} of 9</span></CardTitle></CardHeader>
             <CardContent className="space-y-3">
-              <form action={updateCourse} className="grid gap-2 sm:grid-cols-[1fr_2fr_auto]">
+              <form action={updateCourse} className="grid gap-2 sm:grid-cols-[8rem_1fr_2fr_auto]">
                 <input type="hidden" name="id" value={c.id} />
-                <Input name="title" defaultValue={c.title} required /><Input name="description" defaultValue={c.description ?? ""} placeholder="Short description" />
+                <Input name="code" defaultValue={c.code ?? ""} placeholder="Code, e.g. MMC 101" maxLength={20} aria-label="Class code" /><Input name="title" defaultValue={c.title} required aria-label="Class title" /><Input name="description" defaultValue={c.description ?? ""} placeholder="Short description" />
                 <Button size="sm" type="submit">Save class</Button>
               </form>
               {as.filter((a) => a.courseId === c.id).map((a) => <AssessmentForm key={a.id} a={a} />)}

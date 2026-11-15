@@ -76,10 +76,10 @@ export function DashboardCharts({ data, cohorts, selected }: { data: AdminChartD
           </LineChart>
         </ChartCard>
 
-        <ChartCard title="Where students are now" hint="Active students currently in each class (C1 to C9)" empty={data.perClass.every((d) => d.students === 0)}>
+        <ChartCard title="Where students are now" hint="Active students currently in each class, by class code" empty={data.perClass.every((d) => d.students === 0)}>
           <BarChart data={data.perClass} barSize={24} margin={{ top: 18 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-            <XAxis dataKey="cls" {...axis} tickFormatter={(v: string) => v.replace("Class ", "C")} />
+            <XAxis dataKey="cls" {...axis} tickFormatter={(v: string) => v.match(/\d+$/)?.[0] ?? v} />
             <YAxis allowDecimals={false} {...axis} width={28} />
             <Tooltip formatter={(v) => [v, "Active students"]} />
             <Bar dataKey="students" fill={LIGHT} radius={[4, 4, 0, 0]}><LabelList dataKey="students" {...label} /></Bar>
@@ -89,7 +89,7 @@ export function DashboardCharts({ data, cohorts, selected }: { data: AdminChartD
         <ChartCard title="Average score by class (%)" hint="Tests and assignments shown separately; shows where students struggle" empty={data.avgGrade.every((d) => d.tests === null && d.assignments === null)}>
           <BarChart data={data.avgGrade} barGap={2} margin={{ top: 18 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-            <XAxis dataKey="cls" {...axis} tickFormatter={(v: string) => v.replace("Class ", "C")} />
+            <XAxis dataKey="cls" {...axis} tickFormatter={(v: string) => v.match(/\d+$/)?.[0] ?? v} />
             <YAxis domain={[0, 100]} {...axis} width={34} />
             <Tooltip formatter={(v, name) => [v === null ? "no scores" : `${v}%`, name]} />
             <Legend wrapperStyle={{ fontSize: 11 }} iconType="circle" />

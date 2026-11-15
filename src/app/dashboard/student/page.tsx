@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PageHeader, ProgressBar, StatCard } from "@/components/ui/misc";
 import { MessageCircle, BookOpen, Trophy, HandHeart } from "lucide-react";
-import { formatDate, todayISO, TOTAL_CLASSES } from "@/lib/utils";
+import { classLabel, formatDate, todayISO, TOTAL_CLASSES } from "@/lib/utils";
 import { CheckCircle2, Circle } from "lucide-react";
 
 export default async function StudentHome() {
@@ -48,7 +48,7 @@ export default async function StudentHome() {
       <div className="mb-6 overflow-hidden rounded-2xl bg-brand p-5 text-white sm:hidden">
         <p className="text-sm text-white/80">Current class</p>
         <p className="mt-1 text-4xl font-bold leading-none">{student.currentClass}<span className="ml-1.5 text-lg font-medium text-white/75">of {TOTAL_CLASSES}</span></p>
-        {current && <p className="mt-2 text-sm font-medium text-white/90">{current.title}</p>}
+        {current && <p className="mt-2 text-sm font-medium text-white/90">{current.label} · {current.title}</p>}
         <div className="mt-5 h-2 overflow-hidden rounded-full bg-white/25"><div className="h-full rounded-full bg-white" style={{ width: `${(p.classesCompleted / TOTAL_CLASSES) * 100}%` }} /></div>
         <p className="mt-2 text-xs text-white/80">{p.classesCompleted} of {TOTAL_CLASSES} classes passed · pass mark {p.rules.passMark}%</p>
         <div className="mt-5 grid grid-cols-2 gap-4 border-t border-white/25 pt-4">
@@ -57,7 +57,7 @@ export default async function StudentHome() {
         </div>
       </div>
 <div className="max-sm:hidden mb-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4 max-sm:[&>*:last-child:nth-child(odd)]:col-span-2 auto-rows-fr">
-        <StatCard icon={BookOpen} tone="brand" label="Current class" value={`${student.currentClass} of ${TOTAL_CLASSES}`} sub={current?.title} />
+        <StatCard icon={BookOpen} tone="brand" label="Current class" value={`${student.currentClass} of ${TOTAL_CLASSES}`} sub={current ? `${current.label} · ${current.title}` : undefined} />
         <StatCard icon={CheckCircle2} tone="brand" label="Classes passed" value={p.classesCompleted} sub={`Pass mark ${p.rules.passMark}%`} />
         <StatCard icon={Trophy} tone="amber" label="Overall grade" value={p.overall === null ? "—" : `${p.overall}%`} accent />
         <StatCard icon={HandHeart} tone="blue" label="Prayer / Evangelism" value={`${p.prayers.verified}/${p.prayers.required} · ${p.evangelism.verified}/${p.evangelism.required}`} sub="Verified (not graded)" />
@@ -87,7 +87,7 @@ export default async function StudentHome() {
             <CardContent className="text-sm">
               {next ? (
                 <>
-                  <p className="font-semibold">Class {next.c.number}: {next.c.title}</p>
+                  <p className="font-semibold">{classLabel(next.c)}: {next.c.title}</p>
                   <p className="text-gray-500">{formatDate(next.s.date)} · {next.s.mode}</p>
                   {next.s.mode === "online" && next.s.meetingLink && <a className="mt-1 inline-block font-medium text-brand hover:underline" href={next.s.meetingLink}>Join online</a>}
                 </>

@@ -9,7 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Empty, PageHeader, ProgressBar, StatCard } from "@/components/ui/misc";
-import { formatDate, todayISO } from "@/lib/utils";
+import { classLabel, formatDate, todayISO } from "@/lib/utils";
 
 const LABEL: Record<string, { text: string; v: "success" | "warning" | "destructive" | "outline" }> = {
   present: { text: "Present", v: "success" },
@@ -57,7 +57,7 @@ export default async function StudentSchedule() {
             return (
               <div key={s.id} className={`flex flex-wrap items-center gap-3 px-5 py-3 text-sm ${past ? "text-gray-600" : ""}`}>
                 <span className="w-28 font-medium">{formatDate(s.date)}</span>
-                <span className="min-w-0 flex-1">Class {c.number}: {c.title}{s.topic ? ` — ${s.topic}` : ""}</span>
+                <span className="min-w-0 flex-1">{classLabel(c)}: {c.title}{s.topic ? ` — ${s.topic}` : ""}</span>
                 <Badge variant="outline">{s.mode}</Badge>
                 {!past && s.mode === "online" && s.meetingLink && <a className="font-medium text-brand hover:underline" href={s.meetingLink}>Join</a>}
                 {s.recordingUrl && <a className="font-medium text-brand hover:underline" href={s.recordingUrl} target="_blank" rel="noreferrer">Recording</a>}

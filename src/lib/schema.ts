@@ -21,7 +21,8 @@ export const users = pgTable("users", {
 /** The 9 curriculum classes, in order. */
 export const courses = pgTable("courses", {
   id: text("id").primaryKey(),
-  number: integer("number").notNull().unique(), // 1..9
+  number: integer("number").notNull().unique(), // 1..9 (the order students take them in)
+  code: text("code"), // e.g. "MMC 101" or "BFC 201"
   title: text("title").notNull(),
   description: text("description"),
 });

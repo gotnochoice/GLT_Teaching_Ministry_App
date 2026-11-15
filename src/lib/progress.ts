@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import { db } from "./db";
 import { and, inArray } from "drizzle-orm";
 import { assessments, attendance, classSessions, courses, internshipLogs, internships, requirementLogs, results, settings, students } from "./schema";
-import { TOTAL_CLASSES, todayISO } from "./utils";
+import { TOTAL_CLASSES, classLabel, todayISO } from "./utils";
 
 export type Rules = {
   passMark: number;
@@ -71,6 +71,8 @@ type Item = {
 export type ClassProgress = {
   courseId: string;
   number: number;
+  code: string | null;
+  label: string; // e.g. "MMC 101"
   title: string;
   description: string | null;
   test: Item | null;
@@ -138,6 +140,8 @@ export async function getStudentProgress(studentId: string, currentClass: number
     return {
       courseId: c.id,
       number: c.number,
+      code: c.code,
+      label: classLabel(c),
       title: c.title,
       description: c.description,
       test,

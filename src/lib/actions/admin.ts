@@ -98,8 +98,8 @@ export async function updateCourse(formData: FormData) {
   const admin = await requireRole("ADMIN");
   const title = str(formData, "title");
   if (!title) return;
-  await db.update(courses).set({ title, description: str(formData, "description") || null }).where(eq(courses.id, str(formData, "id")));
-  await audit(admin, "course.updated", "course", str(formData, "id"), { title });
+  await db.update(courses).set({ title, code: str(formData, "code").slice(0, 20) || null, description: str(formData, "description") || null }).where(eq(courses.id, str(formData, "id")));
+  await audit(admin, "course.updated", "course", str(formData, "id"), { title, code: str(formData, "code") || null });
   refresh();
 }
 

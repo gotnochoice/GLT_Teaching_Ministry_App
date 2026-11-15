@@ -2,7 +2,7 @@ import { and, eq, gte, inArray, lte } from "drizzle-orm";
 import { db } from "./db";
 import { assessments, classSessions, cohorts, courses, requirementLogs, results, students, users, attendance, internshipLogs } from "./schema";
 import { notify } from "./notify";
-import { APP_NAME } from "./utils";
+import { APP_NAME, classLabel } from "./utils";
 
 /** DB-default timestamps look like "2026-11-12 23:00:00"; make them ISO so they compare correctly with toISOString() values. */
 const iso = (t: string | null | undefined) => (t ?? "").replace(" ", "T");
@@ -25,7 +25,7 @@ export async function runReminders(): Promise<Counts> {
     for (const { u } of activeStudents.filter((r) => r.s.cohortId === x.cohortId)) {
       const where = x.mode === "online" ? `Online${x.meetingLink ? `: ${x.meetingLink}` : ""}` : "In person";
       const r = await notify(toRecipient(u), `session:${x.id}:${u.id}`, `${APP_NAME}: class tomorrow`,
-        `Hello ${u.name.split(" ")[0]}, a reminder that Class ${c.number} (${c.title}) holds tomorrow. ${where}.`);
+        `Hello ${u.name.split(" ")[0]}, a reminder that ${classLabel(c)} (${c.title}) holds tomorrow. ${where}.`);
       if (sent(r)) out.sessionReminders++;
     }
   }

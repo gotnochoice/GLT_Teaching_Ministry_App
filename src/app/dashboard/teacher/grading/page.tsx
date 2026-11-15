@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { GradeForm } from "@/components/staff/grade-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Empty, PageHeader } from "@/components/ui/misc";
-import { formatDate } from "@/lib/utils";
+import { classLabel, formatDate } from "@/lib/utils";
 
 export default async function TeacherGrading() {
   const user = await requireRole("TEACHER", "ADMIN");
@@ -42,7 +42,7 @@ export default async function TeacherGrading() {
         <div className="space-y-4">
           {queue.map(({ r, a, c }) => (
             <Card key={r.id}>
-              <CardHeader><CardTitle className="text-base">{byId.get(r.studentId)?.user.name} — {a.title}{c ? ` (Class ${c.number})` : ""}</CardTitle><p className="text-xs text-gray-500">Submitted {formatDate(r.submittedAt)}</p></CardHeader>
+              <CardHeader><CardTitle className="text-base">{byId.get(r.studentId)?.user.name} — {a.title}{c ? ` (${classLabel(c)})` : ""}</CardTitle><p className="text-xs text-gray-500">Submitted {formatDate(r.submittedAt)}</p></CardHeader>
               <CardContent className="space-y-3">
                 <p className="whitespace-pre-wrap rounded-md bg-gray-50 p-3 text-sm">{r.submissionText ?? "(no text)"}</p>
                 <GradeForm assessmentId={a.id} studentId={r.studentId} max={a.maxScore} />

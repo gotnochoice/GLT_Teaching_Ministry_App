@@ -1,7 +1,7 @@
 import { desc, eq, inArray, lte } from "drizzle-orm";
 import { db } from "./db";
 import { assessments, attendance, classSessions, courses, results, students } from "./schema";
-import { todayISO } from "./utils";
+import { classLabel, todayISO } from "./utils";
 
 export type AdminChartData = {
   newStudents: { month: string; students: number }[];
@@ -15,6 +15,8 @@ const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "
 /** All figures can be narrowed to one cohort (cohortId) or cover everyone (undefined). */
 export async function getAdminChartData(cohortId?: string): Promise<AdminChartData> {
   const everyone = await db.select().from(students);
+  const allCourses = await db.select().from(courses).orderBy(courses.number);
+  const labelOf = (n: number) => { const c = allCourses.find((x) => x.number === n); return c ? classLabel(c) : `Class ${n}`; };
   const all = cohortId ? everyone.filter((s) => s.cohortId === cohortId) : everyone;
   const ids = new Set(all.map((s) => s.id));
 
@@ -31,7 +33,7 @@ export async function getAdminChartData(cohortId?: string): Promise<AdminChartDa
   }
 
   // 2) Active students in each of the 9 classes
-  const perClass = Array.from({ length: 9 }, (_, i) => ({ cls: `Class ${i + 1}`, students: all.filter((s) => s.status === "active" && s.currentClass === i + 1).length }));
+  const perClass = Array.from({ length: 9 }, (_, i) => ({ cls: labelOf(i + 1), students: all.filter((s) => s.status === "active" && s.currentClass === i + 1).length }));
 
   // 3) Attendance for the 8 most recent Sundays that have recorded attendance (which class, how many came)
   const sessions = await db
@@ -47,7 +49,7 @@ export async function getAdminChartData(cohortId?: string): Promise<AdminChartDa
     .map(({ s, c }) => {
       const r = rows.filter((x) => x.sessionId === s.id && x.status !== "excused");
       const present = r.filter((x) => x.status === "present" || x.status === "makeup").length;
-      return r.length ? { date: s.date, label: `${s.date.slice(8, 10)}/${s.date.slice(5, 7)}`, rate: Math.round((present / r.length) * 100), className: `Class ${c.number}: ${c.title}`, present, total: r.length } : null;
+      return r.length ? { date: s.date, label: `${s.date.slice(8, 10)}/${s.date.slice(5, 7)}`, rate: Math.round((present / r.length) * 100), className: `${classLabel(c)}: ${c.title}`, present, total: r.length } : null;
     })
     .filter((x): x is NonNullable<typeof x> => x !== null)
     .slice(0, 8)
@@ -66,7 +68,7 @@ export async function getAdminChartData(cohortId?: string): Promise<AdminChartDa
     const g = mine.filter((x) => x.number === n && x.kind === kind);
     return g.length ? Math.round(g.reduce((a, x) => a + (x.score! / x.max) * 100, 0) / g.length) : null;
   };
-  const avgGrade = Array.from({ length: 9 }, (_, i) => ({ cls: `Class ${i + 1}`, tests: avg(i + 1, "TEST"), assignments: avg(i + 1, "ASSIGNMENT") }));
+  const avgGrade = Array.from({ length: 9 }, (_, i) => ({ cls: labelOf(i + 1), tests: avg(i + 1, "TEST"), assignments: avg(i + 1, "ASSIGNMENT") }));
 
   return { newStudents: buckets.map(({ month, students }) => ({ month, students })), perClass, attendance: att, avgGrade };
 }

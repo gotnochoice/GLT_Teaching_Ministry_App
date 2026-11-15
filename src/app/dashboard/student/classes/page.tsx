@@ -53,14 +53,14 @@ export default async function StudentClasses() {
         {p.classes.map((c) => !c.unlocked ? (
           <div key={c.courseId} className="flex items-center gap-3 rounded-xl border border-dashed border-gray-300 bg-white/60 px-4 py-3.5 text-sm text-gray-500">
             <Lock className="h-4 w-4 shrink-0" />
-            <span className="min-w-0 flex-1">Class {c.number}: {c.title}</span>
+            <span className="min-w-0 flex-1">{c.label}: {c.title}</span>
             <span className="text-xs">Locked</span>
           </div>
         ) : (
           <Card key={c.courseId}>
             <CardHeader>
               <div className="flex flex-wrap items-center gap-2">
-                <CardTitle className="text-base">Class {c.number}: {c.title}</CardTitle>
+                <CardTitle className="text-base">{c.label}: {c.title}</CardTitle>
                 {c.complete && <Badge variant="success">Passed</Badge>}
                 {!c.unlocked && <Badge variant="outline"><Lock className="mr-1 h-3 w-3" />Locked</Badge>}
               </div>

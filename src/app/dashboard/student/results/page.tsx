@@ -11,7 +11,7 @@ export default async function StudentResults() {
   const { student } = await getMyStudent(user.id);
   const p = await getStudentProgress(student.id, student.currentClass);
   const rows = [
-    ...p.classes.flatMap((c) => [c.test, c.assignment].filter((x) => !!x).map((x) => ({ group: `Class ${c.number}`, ...x! }))),
+    ...p.classes.flatMap((c) => [c.test, c.assignment].filter((x) => !!x).map((x) => ({ group: c.label, ...x! }))),
     ...[p.exam, p.internship].filter((x) => !!x).map((x) => ({ group: "Programme", ...x! })),
   ];
   return (

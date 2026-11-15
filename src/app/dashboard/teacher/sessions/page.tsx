@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Empty, PageHeader } from "@/components/ui/misc";
-import { formatDate, todayISO } from "@/lib/utils";
+import { classLabel, formatDate, todayISO } from "@/lib/utils";
 
 const sel = "flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 text-sm";
 
@@ -33,7 +33,7 @@ export default async function TeacherSessions() {
           <CardContent>
             <form action={createSession} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               <div className="space-y-1.5"><Label>Cohort</Label><select name="cohortId" className={sel} required>{myCohorts.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select></div>
-              <div className="space-y-1.5"><Label>Class</Label><select name="courseId" className={sel} required>{allCourses.map((c) => <option key={c.id} value={c.id}>Class {c.number}: {c.title}</option>)}</select></div>
+              <div className="space-y-1.5"><Label>Class</Label><select name="courseId" className={sel} required>{allCourses.map((c) => <option key={c.id} value={c.id}>{classLabel(c)}: {c.title}</option>)}</select></div>
               <div className="space-y-1.5"><Label>Date</Label><Input type="date" name="date" defaultValue={todayISO()} required /></div>
               <div className="space-y-1.5"><Label>Mode</Label><select name="mode" className={sel}><option value="in-person">In person</option><option value="online">Online</option></select></div>
               <div className="space-y-1.5"><Label>Meeting link (online)</Label><Input name="meetingLink" placeholder="https://" /></div>
@@ -49,7 +49,7 @@ export default async function TeacherSessions() {
           const roster = mine.filter((m) => m.student.cohortId === s.cohortId && m.student.status === "active");
           return (
             <Card key={s.id}>
-              <CardHeader><CardTitle className="text-base">{formatDate(s.date)} · Class {c.number}: {c.title} <span className="text-sm font-normal text-gray-500">({s.mode})</span></CardTitle></CardHeader>
+              <CardHeader><CardTitle className="text-base">{formatDate(s.date)} · {classLabel(c)}: {c.title} <span className="text-sm font-normal text-gray-500">({s.mode})</span></CardTitle></CardHeader>
               <CardContent>
                 <form action={setRecording} className="mb-4 flex flex-wrap items-center gap-2">
                   <input type="hidden" name="sessionId" value={s.id} />

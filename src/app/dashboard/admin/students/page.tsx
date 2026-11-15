@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { cohorts } from "@/lib/schema";
+import { cohorts, courses } from "@/lib/schema";
 import { requireRole } from "@/lib/session";
 import { listStudents } from "@/lib/queries";
 import { createUser, updateStudent } from "@/lib/actions/admin";
@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PageHeader, StatusBadge } from "@/components/ui/misc";
+import { classLabel } from "@/lib/utils";
 import { WaLink } from "@/components/ui/wa-link";
 
 const sel = "h-9 rounded-md border border-gray-300 bg-white px-2 text-sm";
@@ -19,6 +20,7 @@ export default async function AdminStudents({ searchParams }: { searchParams: Pr
   const all = await listStudents();
   const rows = needle ? all.filter((r) => [r.user.name, r.user.email, r.student.matricNo].some((v) => (v ?? "").toLowerCase().includes(needle))) : all;
   const allCohorts = await db.select().from(cohorts);
+  const allCourses = await db.select().from(courses).orderBy(courses.number);
   return (
     <>
       <PageHeader title="Students" description="Enrol students and manage their class, cohort and status. Graduated students are handled on the Graduation page." action={<a href="#add" className="inline-flex h-9 items-center rounded-md bg-brand px-3 text-sm font-medium text-white lg:hidden">+ Add</a>} />
@@ -55,7 +57,7 @@ export default async function AdminStudents({ searchParams }: { searchParams: Pr
                     <form action={updateStudent} className="flex flex-wrap items-center gap-2">
                       <input type="hidden" name="id" value={student.id} />
                       <select name="cohortId" defaultValue={cohort?.id ?? ""} className={sel}><option value="">No cohort</option>{allCohorts.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select>
-                      <select name="currentClass" defaultValue={student.currentClass} className={sel}>{Array.from({ length: 9 }, (_, i) => <option key={i} value={i + 1}>Class {i + 1}</option>)}</select>
+                      <select name="currentClass" defaultValue={student.currentClass} className={sel}>{allCourses.map((c) => <option key={c.id} value={c.number}>{classLabel(c)}</option>)}</select>
                       <select name="status" defaultValue={student.status} className={sel}><option value="active">Active</option><option value="paused">Paused</option><option value="withdrawn">Withdrawn</option></select>
                       <Button size="sm" type="submit">Save</Button>
                     </form>
