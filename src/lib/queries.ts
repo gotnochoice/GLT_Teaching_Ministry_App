@@ -28,3 +28,8 @@ export async function listScopedStudents(user: { id: string; role: string }) {
   if (user.role === "ADMIN") return all;
   return all.filter((r) => r.cohort?.teacherId === user.id);
 }
+
+export async function studentName(studentId: string): Promise<string> {
+  const [r] = await db.select({ name: users.name }).from(students).innerJoin(users, eq(users.id, students.userId)).where(eq(students.id, studentId));
+  return r?.name ?? studentId;
+}

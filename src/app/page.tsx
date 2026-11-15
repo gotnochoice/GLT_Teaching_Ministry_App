@@ -28,10 +28,15 @@ export default async function Home() {
             <p className="mx-auto mt-4 max-w-xl text-lg text-white/80">
               Grow in the faith through nine guided classes. Track your classes, tests, assignments and graduation in one place.
             </p>
-            <div className="mt-8">
+            <div className="mt-8 flex flex-wrap justify-center gap-3">
               <Link href={user ? dashboardPath(user.role) : "/login"}>
                 <Button size="lg" className="rounded-none px-8 uppercase tracking-widest">{user ? "Go to my dashboard" : "Log in"}</Button>
               </Link>
+              {!user && (
+                <Link href="/join">
+                  <Button size="lg" variant="outline" className="rounded-none border-white px-8 uppercase tracking-widest text-white hover:bg-white hover:text-brand">Join the next class</Button>
+                </Link>
+              )}
             </div>
           </div>
         </section>

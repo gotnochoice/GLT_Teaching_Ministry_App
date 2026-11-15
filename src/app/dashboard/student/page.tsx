@@ -28,6 +28,9 @@ export default async function StudentHome() {
     { label: `Pass all ${TOTAL_CLASSES} classes`, done: p.classesCompleted === TOTAL_CLASSES, detail: `${p.classesCompleted}/${TOTAL_CLASSES}` },
     { label: "Final exam", done: !!p.exam?.passed, detail: p.exam?.status === "graded" ? `${p.exam.pct}%` : "Not graded" },
     { label: "Internship", done: !!p.internship?.passed, detail: p.internship?.status === "graded" ? `${p.internship.pct}%` : "Not graded" },
+    ...(p.rules.internshipHoursRequired > 0 ? [{ label: "Internship hours", done: p.internshipWork.hoursVerified >= p.rules.internshipHoursRequired, detail: `${p.internshipWork.hoursVerified}/${p.rules.internshipHoursRequired} verified` }] : []),
+    { label: "Internship sign-off", done: !!p.internshipWork.placement?.signedOff, detail: p.internshipWork.placement?.signedOff ? "Signed off" : p.internshipWork.placement ? "Awaiting" : "No placement yet" },
+    ...(p.rules.minAttendancePct > 0 ? [{ label: "Attendance", done: p.attendance.pct !== null && p.attendance.pct >= p.rules.minAttendancePct, detail: p.attendance.pct === null ? "No sessions yet" : `${p.attendance.pct}% (need ${p.rules.minAttendancePct}%)` }] : []),
     { label: "Prayers", done: p.prayers.verified >= p.prayers.required, detail: `${p.prayers.verified}/${p.prayers.required} verified` },
     { label: "Evangelism", done: p.evangelism.verified >= p.evangelism.required, detail: `${p.evangelism.verified}/${p.evangelism.required} verified` },
   ];

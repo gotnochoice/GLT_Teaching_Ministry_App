@@ -1,7 +1,8 @@
 import { eq } from "drizzle-orm";
 import { db } from "./db";
-import { assessments, courses, requirementLogs, results, settings } from "./schema";
-import { TOTAL_CLASSES } from "./utils";
+import { and, inArray } from "drizzle-orm";
+import { assessments, attendance, classSessions, courses, internshipLogs, internships, requirementLogs, results, settings, students } from "./schema";
+import { TOTAL_CLASSES, todayISO } from "./utils";
 
 export type Rules = {
   passMark: number;
@@ -10,6 +11,8 @@ export type Rules = {
   weightClasswork: number;
   weightExam: number;
   weightInternship: number;
+  minAttendancePct: number; // 0 disables the attendance requirement
+  internshipHoursRequired: number; // 0 disables the hours requirement
 };
 
 const DEFAULTS: Record<string, string> = {
@@ -19,6 +22,8 @@ const DEFAULTS: Record<string, string> = {
   weight_classwork: "50",
   weight_exam: "30",
   weight_internship: "20",
+  min_attendance_pct: "80",
+  internship_hours_required: "20",
 };
 
 export async function getRules(): Promise<Rules> {
@@ -31,6 +36,8 @@ export async function getRules(): Promise<Rules> {
     weightClasswork: Number(m.weight_classwork),
     weightExam: Number(m.weight_exam),
     weightInternship: Number(m.weight_internship),
+    minAttendancePct: Number(m.min_attendance_pct),
+    internshipHoursRequired: Number(m.internship_hours_required),
   };
 }
 
@@ -69,6 +76,13 @@ export type StudentProgress = {
   internship: Item | null;
   prayers: { verified: number; pending: number; required: number };
   evangelism: { verified: number; pending: number; required: number };
+  attendance: { attended: number; total: number; pct: number | null; required: number };
+  internshipWork: {
+    placement: typeof internships.$inferSelect | null;
+    hoursVerified: number;
+    hoursPending: number;
+    hoursRequired: number;
+  };
   overall: number | null; // weighted %, null until something is graded
   eligibleToGraduate: boolean;
   missing: string[];
@@ -76,6 +90,7 @@ export type StudentProgress = {
 
 export async function getStudentProgress(studentId: string, currentClass: number): Promise<StudentProgress> {
   const rules = await getRules();
+  const [studentRow] = await db.select().from(students).where(eq(students.id, studentId));
   const [allCourses, allAssessments, myResults, logs] = await Promise.all([
     db.select().from(courses).orderBy(courses.number),
     db.select().from(assessments),
@@ -138,15 +153,45 @@ export async function getStudentProgress(studentId: string, currentClass: number
   const totalW = parts.reduce((a, p) => a + p.w, 0);
   const overall = totalW ? Math.round(parts.reduce((a, p) => a + p.w * p.v, 0) / totalW) : null;
 
+  // Attendance: only sessions (up to today) where the teacher recorded attendance count.
+  // present + approved make-up = attended; excused sessions are removed from the total.
+  const att = { attended: 0, total: 0, pct: null as number | null, required: rules.minAttendancePct };
+  if (studentRow?.cohortId) {
+    const sessions = await db.select().from(classSessions).where(eq(classSessions.cohortId, studentRow.cohortId));
+    // Only sessions from the day the student enrolled count: someone joining in week 5 is not marked absent for weeks 1-4.
+    const past = sessions.filter((x) => x.date <= todayISO() && (!studentRow.enrolledAt || x.date >= studentRow.enrolledAt));
+    const rows = past.length ? await db.select().from(attendance).where(inArray(attendance.sessionId, past.map((x) => x.id))) : [];
+    const recorded = new Set(rows.map((r) => r.sessionId));
+    const mine = new Map(rows.filter((r) => r.studentId === studentId).map((r) => [r.sessionId, r.status]));
+    for (const sess of past) {
+      if (!recorded.has(sess.id)) continue;
+      const st = mine.get(sess.id);
+      if (st === "excused") continue;
+      att.total++;
+      if (st === "present" || st === "makeup") att.attended++;
+    }
+    att.pct = att.total ? Math.round((att.attended / att.total) * 100) : null;
+  }
+
+  const [placement] = await db.select().from(internships).where(eq(internships.studentId, studentId));
+  const hourLogs = await db.select().from(internshipLogs).where(and(eq(internshipLogs.studentId, studentId)));
+  const sum = (st: string) => hourLogs.filter((h) => h.status === st).reduce((a, h) => a + h.hours, 0);
+  const internshipWork = { placement: placement ?? null, hoursVerified: sum("verified"), hoursPending: sum("pending"), hoursRequired: rules.internshipHoursRequired };
+
   const classesCompleted = classes.filter((c) => c.complete).length;
   const missing: string[] = [];
   if (classesCompleted < TOTAL_CLASSES) missing.push(`${TOTAL_CLASSES - classesCompleted} class(es) not yet passed`);
   if (!exam?.passed) missing.push("Final exam not passed");
   if (!internship?.passed) missing.push("Internship not passed");
+  if (rules.minAttendancePct > 0 && (att.pct === null || att.pct < rules.minAttendancePct))
+    missing.push(att.pct === null ? "Attendance: no recorded sessions yet" : `Attendance ${att.pct}% (need ${rules.minAttendancePct}%)`);
+  if (rules.internshipHoursRequired > 0 && internshipWork.hoursVerified < rules.internshipHoursRequired)
+    missing.push(`Internship hours: ${internshipWork.hoursVerified}/${rules.internshipHoursRequired} verified`);
+  if (!placement?.signedOff) missing.push("Internship supervisor sign-off");
   if (prayers.verified < prayers.required) missing.push(`Prayers: ${prayers.verified}/${prayers.required} verified`);
   if (evangelism.verified < evangelism.required) missing.push(`Evangelism: ${evangelism.verified}/${evangelism.required} verified`);
 
-  return { rules, classes, classesCompleted, exam, internship, prayers, evangelism, overall, eligibleToGraduate: missing.length === 0, missing };
+  return { rules, classes, classesCompleted, exam, internship, prayers, evangelism, attendance: att, internshipWork, overall, eligibleToGraduate: missing.length === 0, missing };
 }
 
 /** After grading: advance a student to the next class once their current class is passed. */

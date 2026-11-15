@@ -26,6 +26,7 @@ async function main() {
   const settings: Record<string, string> = {
     pass_mark: "50", prayers_required: "2", evangelism_required: "2",
     weight_classwork: "50", weight_exam: "30", weight_internship: "20",
+    min_attendance_pct: "80", internship_hours_required: "20",
   };
   for (const [k, v] of Object.entries(settings))
     await q("INSERT INTO settings(key,value) VALUES($1,$2) ON CONFLICT DO NOTHING", [k, v]);
@@ -64,6 +65,16 @@ async function main() {
     }
   }
   await q("INSERT INTO requirement_logs(id,student_id,kind,activity_date,description,status,verified_by) VALUES($1,'student-3','PRAYER','2026-10-04','Prayer meeting','verified','u-teacher')", [uid()]).catch(() => {});
+  // Demo: the lead teacher is also a pastor; three past Sundays, one with a recording.
+  await q("UPDATE users SET is_pastor = true WHERE id = 'u-teacher'");
+  const past = (d: number) => new Date(Date.now() - d * 86400_000).toISOString().split("T")[0];
+  for (const [i, d] of [21, 14, 7].entries()) {
+    await q("INSERT INTO class_sessions(id,course_id,cohort_id,date,mode,recording_url) VALUES($1,'course-1','cohort-1',$2,'in-person',$3) ON CONFLICT DO NOTHING", [`sess-${i + 1}`, past(d), i === 1 ? "https://example.org/recording" : null]);
+    for (const [j, sid] of ["student-1", "student-2", "student-3"].entries()) {
+      const status = j === 1 && i > 0 ? "absent" : "present";
+      await q("INSERT INTO attendance(id,session_id,student_id,status) VALUES($1,$2,$3,$4) ON CONFLICT DO NOTHING", [`att-${i}-${j}`, `sess-${i + 1}`, sid, status]);
+    }
+  }
   await q("INSERT INTO announcements(id,title,body,created_by) VALUES('ann-1','Welcome to the new cohort','Classes hold every Sunday after service. Online students use the link on the Sessions page.','u-admin') ON CONFLICT DO NOTHING");
 
   await pool.end();

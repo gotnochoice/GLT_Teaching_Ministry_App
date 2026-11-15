@@ -57,6 +57,9 @@ export default function LoginPage() {
               {error && <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>}
               <Button type="submit" className="w-full" disabled={loading}>{loading ? "Logging in..." : "Sign in"}</Button>
             </form>
+            <p className="mt-4 text-center text-sm text-gray-500">
+              New here? <Link href="/join" className="font-medium text-brand hover:underline">Request to join the next class</Link>
+            </p>
           </CardContent>
         </Card>
       </div>

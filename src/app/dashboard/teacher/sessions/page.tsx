@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { attendance, classSessions, cohorts, courses } from "@/lib/schema";
 import { requireRole } from "@/lib/session";
 import { listScopedStudents } from "@/lib/queries";
-import { createSession, saveAttendance } from "@/lib/actions/staff";
+import { createSession, saveAttendance, setRecording } from "@/lib/actions/staff";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -38,6 +38,7 @@ export default async function TeacherSessions() {
               <div className="space-y-1.5"><Label>Mode</Label><select name="mode" className={sel}><option value="in-person">In person</option><option value="online">Online</option></select></div>
               <div className="space-y-1.5"><Label>Meeting link (online)</Label><Input name="meetingLink" placeholder="https://" /></div>
               <div className="space-y-1.5"><Label>Topic (optional)</Label><Input name="topic" /></div>
+              <div className="space-y-1.5"><Label>Recording link (add later if not ready)</Label><Input name="recordingUrl" placeholder="https://" /></div>
               <div className="sm:col-span-2 lg:col-span-3"><Button type="submit">Add session</Button></div>
             </form>
           </CardContent>
@@ -50,6 +51,11 @@ export default async function TeacherSessions() {
             <Card key={s.id}>
               <CardHeader><CardTitle className="text-base">{formatDate(s.date)} · Class {c.number}: {c.title} <span className="text-sm font-normal text-gray-500">({s.mode})</span></CardTitle></CardHeader>
               <CardContent>
+                <form action={setRecording} className="mb-4 flex flex-wrap items-center gap-2">
+                  <input type="hidden" name="sessionId" value={s.id} />
+                  <Input name="recordingUrl" defaultValue={s.recordingUrl ?? ""} placeholder="Recording link (lets absent students make up this class)" className="h-9 max-w-md" />
+                  <Button size="sm" variant="outline" type="submit">Save recording link</Button>
+                </form>
                 {roster.length === 0 ? <p className="text-sm text-gray-500">No active students in this cohort.</p> : (
                   <form action={saveAttendance} className="space-y-2">
                     <input type="hidden" name="sessionId" value={s.id} />
@@ -57,7 +63,7 @@ export default async function TeacherSessions() {
                       <div key={m.student.id} className="flex items-center gap-3 text-sm">
                         <span className="w-48 truncate font-medium">{m.user.name}</span>
                         <select name={`att_${m.student.id}`} defaultValue={attKey.get(`${s.id}:${m.student.id}`) ?? "present"} className="h-9 rounded-md border border-gray-300 bg-white px-2 text-sm">
-                          <option value="present">Present</option><option value="absent">Absent</option><option value="excused">Excused</option>
+                          <option value="present">Present</option><option value="absent">Absent</option><option value="excused">Excused</option><option value="makeup">Made up (recording, approved)</option><option value="makeup_pending">Make-up requested</option>
                         </select>
                       </div>
                     ))}

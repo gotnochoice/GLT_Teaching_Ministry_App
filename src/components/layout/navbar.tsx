@@ -6,13 +6,13 @@ import { signOut } from "next-auth/react";
 import Image from "next/image";
 import { LogOut, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { NAV } from "@/lib/nav";
+import { NAV, PASTOR_NAV } from "@/lib/nav";
 import { APP_NAME, cn, dashboardPath, type Role } from "@/lib/utils";
 
-export function Navbar({ user }: { user?: { name: string; role: Role } }) {
+export function Navbar({ user }: { user?: { name: string; role: Role; isPastor?: boolean } }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const nav = user ? NAV[user.role] : [];
+  const nav = user ? [...NAV[user.role], ...(user.isPastor ? [PASTOR_NAV] : [])] : [];
   const firstName = user?.name.split(" ")[0] ?? "";
 
   return (
@@ -35,6 +35,7 @@ export function Navbar({ user }: { user?: { name: string; role: Role } }) {
                   <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-semibold uppercase text-white">{user.role.toLowerCase()}</span>
                 </div>
                 <div className="mx-1 h-5 w-px bg-white/30" />
+                <Link href="/account" className="rounded-lg px-3 py-1.5 text-sm font-medium text-white/80 transition-colors hover:bg-white/15 hover:text-white">Account</Link>
                 <button
                   onClick={() => signOut({ callbackUrl: "/" })}
                   className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-white/80 transition-colors hover:bg-white/15 hover:text-white"
@@ -87,6 +88,7 @@ export function Navbar({ user }: { user?: { name: string; role: Role } }) {
               </div>
             </nav>
             <div className="border-t border-gray-100 p-3">
+              <Link href="/account" onClick={() => setOpen(false)} className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-100">Account &amp; notifications</Link>
               <button
                 className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50"
                 onClick={() => signOut({ callbackUrl: "/" })}

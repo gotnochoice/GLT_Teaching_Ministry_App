@@ -2,7 +2,7 @@ import { inArray } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { users } from "@/lib/schema";
 import { requireRole } from "@/lib/session";
-import { createUser } from "@/lib/actions/admin";
+import { createUser, setPastor } from "@/lib/actions/admin";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,7 +15,7 @@ export default async function AdminPeople() {
   const staff = await db.select().from(users).where(inArray(users.role, ["TEACHER", "ADMIN"])).orderBy(users.role, users.name);
   return (
     <>
-      <PageHeader title="Teachers & Admins" />
+      <PageHeader title="Teachers & Admins" description="Pastors can read private pastoral-care requests; nobody else can, including admins. Granting or removing this is recorded in the audit log." />
       <Card className="mb-8">
         <CardHeader><CardTitle className="text-base">Add a teacher or admin</CardTitle></CardHeader>
         <CardContent>
@@ -34,6 +34,8 @@ export default async function AdminPeople() {
           <div key={u.id} className="flex items-center gap-3 px-5 py-3 text-sm">
             <span className="flex-1 font-medium">{u.name}</span><span className="text-gray-500">{u.email}</span>
             <Badge variant={u.role === "ADMIN" ? "orange" : "default"}>{u.role.toLowerCase()}</Badge>
+            {u.isPastor && <Badge variant="success">pastor</Badge>}
+            <form action={setPastor}><input type="hidden" name="id" value={u.id} /><input type="hidden" name="value" value={u.isPastor ? "false" : "true"} /><Button size="sm" variant="outline" type="submit">{u.isPastor ? "Remove pastor access" : "Make pastor"}</Button></form>
           </div>
         ))}
       </CardContent></Card>

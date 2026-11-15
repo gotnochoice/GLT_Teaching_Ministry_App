@@ -1,4 +1,4 @@
-import { pgTable, text, integer, unique } from "drizzle-orm/pg-core";
+import { pgTable, text, integer, boolean, real, unique } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
 const now = () => text("created_at").default(sql`(now() AT TIME ZONE 'UTC')::text`);
@@ -10,6 +10,10 @@ export const users = pgTable("users", {
   phone: text("phone"),
   passwordHash: text("password_hash"),
   role: text("role").default("STUDENT").notNull(), // STUDENT | TEACHER | ADMIN
+  isPastor: boolean("is_pastor").default(false).notNull(), // may read private pastoral-care requests
+  mustChangePassword: boolean("must_change_password").default(false).notNull(),
+  notifyEmail: boolean("notify_email").default(true).notNull(),
+  notifyWhatsapp: boolean("notify_whatsapp").default(true).notNull(),
   createdAt: now(),
 });
 
@@ -52,6 +56,7 @@ export const classSessions = pgTable("class_sessions", {
   mode: text("mode").default("in-person").notNull(), // in-person | online
   meetingLink: text("meeting_link"),
   topic: text("topic"),
+  recordingUrl: text("recording_url"), // lets absent students make up the class
   createdAt: now(),
 });
 
@@ -61,7 +66,7 @@ export const attendance = pgTable(
     id: text("id").primaryKey(),
     sessionId: text("session_id").notNull().references(() => classSessions.id, { onDelete: "cascade" }),
     studentId: text("student_id").notNull().references(() => students.id, { onDelete: "cascade" }),
-    status: text("status").notNull(), // present | absent | excused
+    status: text("status").notNull(), // present | absent | excused | makeup_pending | makeup
   },
   (t) => [unique().on(t.sessionId, t.studentId)]
 );
@@ -124,3 +129,85 @@ export const announcements = pgTable("announcements", {
   createdAt: now(),
 });
 
+
+/** Public "join the next class" requests, reviewed by an admin. */
+export const applications = pgTable("applications", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  email: text("email").notNull(),
+  phone: text("phone"),
+  location: text("location"),
+  preferredMode: text("preferred_mode").default("in-person").notNull(),
+  message: text("message"),
+  status: text("status").default("pending").notNull(), // pending | approved | rejected
+  reviewedBy: text("reviewed_by").references(() => users.id),
+  reviewedAt: text("reviewed_at"),
+  userId: text("user_id").references(() => users.id),
+  createdAt: now(),
+});
+
+/** One internship placement per student. */
+export const internships = pgTable("internships", {
+  id: text("id").primaryKey(),
+  studentId: text("student_id").notNull().unique().references(() => students.id, { onDelete: "cascade" }),
+  ministryUnit: text("ministry_unit").notNull(),
+  supervisorName: text("supervisor_name").notNull(),
+  supervisorContact: text("supervisor_contact"),
+  startedAt: text("started_at"),
+  signedOff: boolean("signed_off").default(false).notNull(),
+  signedOffBy: text("signed_off_by").references(() => users.id),
+  signedOffAt: text("signed_off_at"),
+  supervisorRemarks: text("supervisor_remarks"),
+});
+
+export const internshipLogs = pgTable("internship_logs", {
+  id: text("id").primaryKey(),
+  studentId: text("student_id").notNull().references(() => students.id, { onDelete: "cascade" }),
+  activityDate: text("activity_date").notNull(),
+  hours: real("hours").notNull(),
+  description: text("description"),
+  status: text("status").default("pending").notNull(), // pending | verified | rejected
+  verifiedBy: text("verified_by").references(() => users.id),
+  verifiedAt: text("verified_at"),
+  createdAt: now(),
+});
+
+/** Private concerns / prayer requests. Readable ONLY by pastors (users.is_pastor) and the requester. */
+export const careRequests = pgTable("care_requests", {
+  id: text("id").primaryKey(),
+  requesterId: text("requester_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  kind: text("kind").default("CONCERN").notNull(), // CONCERN | PRAYER | COUNSEL
+  subject: text("subject").notNull(),
+  message: text("message").notNull(),
+  status: text("status").default("open").notNull(), // open | in_progress | closed
+  createdAt: now(),
+  updatedAt: text("updated_at").default(sql`(now() AT TIME ZONE 'UTC')::text`),
+});
+
+export const careNotes = pgTable("care_notes", {
+  id: text("id").primaryKey(),
+  requestId: text("request_id").notNull().references(() => careRequests.id, { onDelete: "cascade" }),
+  authorId: text("author_id").notNull().references(() => users.id),
+  note: text("note").notNull(),
+  visibleToRequester: boolean("visible_to_requester").default(false).notNull(),
+  createdAt: now(),
+});
+
+/** Append-only (enforced by a DB trigger). Who did what, and the before/after for grades. */
+export const auditLog = pgTable("audit_log", {
+  id: text("id").primaryKey(),
+  actorId: text("actor_id"),
+  actorName: text("actor_name"),
+  action: text("action").notNull(),
+  entity: text("entity").notNull(),
+  entityId: text("entity_id"),
+  detail: text("detail"), // JSON string
+  createdAt: now(),
+});
+
+/** De-duplicates reminders so a cron re-run never double-sends. */
+export const notificationLog = pgTable("notification_log", {
+  key: text("key").primaryKey(),
+  channel: text("channel").notNull(),
+  createdAt: now(),
+});

@@ -2,15 +2,15 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { NAV } from "@/lib/nav";
+import { NAV, PASTOR_NAV } from "@/lib/nav";
 import type { Role } from "@/lib/utils";
 
-export function Sidebar({ role }: { role: Role }) {
+export function Sidebar({ role, isPastor }: { role: Role; isPastor?: boolean }) {
   const pathname = usePathname();
   return (
     <aside className="hidden w-60 shrink-0 border-r border-gray-200 bg-white lg:block">
       <nav className="flex flex-col gap-1 p-4 pt-6">
-        {NAV[role].map(({ href, label, icon: Icon }) => (
+        {[...NAV[role], ...(isPastor ? [PASTOR_NAV] : [])].map(({ href, label, icon: Icon }) => (
           <Link
             key={href}
             href={href}

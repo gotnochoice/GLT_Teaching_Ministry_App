@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PageHeader } from "@/components/ui/misc";
+import { providerStatus } from "@/lib/notify";
 
 export default async function AdminSettings() {
   await requireRole("ADMIN");
@@ -17,10 +18,17 @@ export default async function AdminSettings() {
     ["weight_classwork", "Weight: tests & assignments (%)", r.weightClasswork, "Share of the overall grade."],
     ["weight_exam", "Weight: final exam (%)", r.weightExam, ""],
     ["weight_internship", "Weight: internship (%)", r.weightInternship, ""],
+    ["min_attendance_pct", "Minimum attendance (%)", r.minAttendancePct, "Required to graduate. Excused sessions don't count against a student. 0 turns this off."],
+    ["internship_hours_required", "Internship hours required", r.internshipHoursRequired, "Verified hours needed before graduation. 0 turns this off."],
   ];
   return (
     <>
       <PageHeader title="Settings" description="Graduation rules and grade weights." />
+      <div className="mb-6 max-w-xl rounded-lg border border-gray-200 bg-white p-4 text-sm">
+        <p className="mb-2 font-semibold">Reminder channels</p>
+        <p>Email: {providerStatus().email ? <span className="text-green-700">connected</span> : <span className="text-gray-500">not set up (add RESEND_API_KEY and EMAIL_FROM)</span>}</p>
+        <p>WhatsApp: {providerStatus().whatsapp ? <span className="text-green-700">connected</span> : <span className="text-gray-500">not set up (add the TWILIO_* variables)</span>}</p>
+      </div>
       <Card className="max-w-xl"><CardContent className="p-6">
         <form action={saveSettings} className="space-y-4">
           {fields.map(([k, label, v, hint]) => (
