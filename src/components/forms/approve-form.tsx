@@ -10,10 +10,11 @@ export function ApproveForm({ id, cohorts }: { id: string; cohorts: { id: string
   const router = useRouter();
   if (state.ok) {
     const site = process.env.NEXT_PUBLIC_SITE_URL ?? "";
-    const wa = waLink(state.phone, `Hello ${state.name}, your request to join has been approved.\n\nLogin: ${site}/login\nEmail: ${state.email}\nTemporary password: ${state.password}\n\nYou will be asked to choose a new password the first time you log in.`);
+    const wa = waLink(state.phone, `Hello ${state.name}, your request to join has been approved.\n\nYour matric number: ${state.matricNo}\nLogin: ${site}/login\nEmail: ${state.email}\nTemporary password: ${state.password}\n\nYou will be asked to choose a new password the first time you log in.`);
     return (
       <div className="rounded-md bg-green-50 p-3 text-sm">
         <p className="font-semibold text-green-800">Account created for {state.email}</p>
+        <p>Matric number: <code className="rounded bg-white px-1.5 py-0.5 font-mono">{state.matricNo}</code></p>
         <p>Temporary password: <code className="rounded bg-white px-1.5 py-0.5 font-mono">{state.password}</code></p>
         <p className="mt-1 text-xs text-gray-600">
           Shown once. Email: {state.emailed === "sent" ? "sent" : "not sent (email isn't set up or failed)"}.

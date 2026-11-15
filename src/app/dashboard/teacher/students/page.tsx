@@ -15,11 +15,11 @@ export default async function TeacherStudents() {
       {withProgress.length === 0 ? <Empty>No students are assigned to your cohorts yet. Ask an admin to assign you to a cohort.</Empty> : (
         <Card><CardContent className="overflow-x-auto p-0">
           <table className="w-full text-sm">
-            <thead className="border-b bg-gray-50 text-left text-xs uppercase text-gray-500"><tr><th className="px-4 py-3">Student</th><th className="px-4 py-3">Cohort</th><th className="px-4 py-3">Class</th><th className="px-4 py-3 w-40">Progress</th><th className="px-4 py-3">Prayer</th><th className="px-4 py-3">Evang.</th><th className="px-4 py-3">Grade</th><th className="px-4 py-3">Status</th><th className="px-4 py-3">Contact</th></tr></thead>
+            <thead className="border-b bg-gray-50 text-left text-xs uppercase text-gray-500"><tr><th className="px-4 py-3">Matric no.</th><th className="px-4 py-3">Student</th><th className="px-4 py-3">Cohort</th><th className="px-4 py-3">Class</th><th className="px-4 py-3 w-40">Progress</th><th className="px-4 py-3">Prayer</th><th className="px-4 py-3">Evang.</th><th className="px-4 py-3">Grade</th><th className="px-4 py-3">Status</th><th className="px-4 py-3">Contact</th></tr></thead>
             <tbody className="divide-y">
               {withProgress.map(({ student, user: u, cohort, p }) => (
                 <tr key={student.id}>
-                  <td className="px-4 py-3 font-medium">{u.name}</td><td className="px-4 py-3 text-gray-500">{cohort?.name ?? "—"}</td>
+                  <td className="whitespace-nowrap px-4 py-3 font-mono text-xs text-gray-500">{student.matricNo ?? "—"}</td><td className="px-4 py-3 font-medium">{u.name}</td><td className="px-4 py-3 text-gray-500">{cohort?.name ?? "—"}</td>
                   <td className="px-4 py-3">{student.currentClass}/9</td><td className="px-4 py-3"><ProgressBar value={p.classesCompleted} max={9} /></td>
                   <td className="px-4 py-3">{p.prayers.verified}/{p.prayers.required}</td><td className="px-4 py-3">{p.evangelism.verified}/{p.evangelism.required}</td>
                   <td className="px-4 py-3">{p.overall === null ? "—" : `${p.overall}%`}</td><td className="px-4 py-3"><StatusBadge status={student.status} /></td><td className="px-4 py-3"><WaLink phone={u.phone} text={`Hello ${u.name.split(" ")[0]}, `} /></td>

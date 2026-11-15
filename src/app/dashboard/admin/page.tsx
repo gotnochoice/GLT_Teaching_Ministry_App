@@ -5,6 +5,8 @@ import { requireRole } from "@/lib/session";
 import { listStudents } from "@/lib/queries";
 import { getStudentProgress } from "@/lib/progress";
 import { PageHeader, StatCard } from "@/components/ui/misc";
+import { DashboardCharts } from "@/components/admin/dashboard-charts";
+import { getAdminChartData } from "@/lib/admin-stats";
 
 import { Users, Layers, GraduationCap, ClipboardList, HandHeart } from "lucide-react";
 
@@ -15,6 +17,7 @@ export default async function AdminHome() {
   const ready = (await Promise.all(active.map((s) => getStudentProgress(s.student.id, s.student.currentClass)))).filter((p) => p.eligibleToGraduate).length;
   const toGrade = (await db.select().from(results).where(eq(results.status, "submitted"))).length;
   const toVerify = (await db.select().from(requirementLogs).where(eq(requirementLogs.status, "pending"))).length;
+  const chartData = await getAdminChartData();
   const cohortCount = (await db.select().from(cohorts).where(eq(cohorts.status, "active"))).length;
   return (
     <>
@@ -26,6 +29,7 @@ export default async function AdminHome() {
         <StatCard icon={ClipboardList} tone="red" label="Awaiting grading" value={toGrade} />
         <StatCard icon={HandHeart} tone="amber" label="Awaiting verification" value={toVerify} />
       </div>
+      <DashboardCharts data={chartData} />
     </>
   );
 }

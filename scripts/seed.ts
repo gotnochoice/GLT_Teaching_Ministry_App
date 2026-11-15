@@ -1,6 +1,7 @@
 import { Pool } from "pg";
 import bcrypt from "bcryptjs";
 import { randomUUID as uid } from "crypto";
+import { DDL } from "./schema-sql";
 
 // Placeholder curriculum — rename in Admin → Curriculum or edit here.
 const CLASSES: [string, string][] = [
@@ -77,6 +78,7 @@ async function main() {
   }
   await q("INSERT INTO announcements(id,title,body,created_by) VALUES('ann-1','Welcome to the new cohort','Classes hold every Sunday after service. Online students use the link on the Sessions page.','u-admin') ON CONFLICT DO NOTHING");
 
+  await q(DDL); // idempotent; its backfill step assigns matric numbers to the seeded students
   await pool.end();
   console.log("Seeded. Demo logins (password: password123): admin@church.test, teacher@church.test, tunde@church.test");
 }

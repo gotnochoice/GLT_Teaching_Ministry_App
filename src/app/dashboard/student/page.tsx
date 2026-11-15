@@ -41,7 +41,7 @@ export default async function StudentHome() {
     <>
       <PageHeader
         title={`Welcome, ${user.name.split(" ")[0]}`}
-        description={cohort ? `${cohort.name} · ${cohort.mode}` : "You have not been placed in a cohort yet."}
+        description={`${student.matricNo ?? "No matric number yet"} · ${cohort ? `${cohort.name} · ${cohort.mode}` : "not placed in a cohort yet"}`}
         action={student.status === "graduated" ? <Badge variant="orange">Graduated {formatDate(student.graduatedAt)}</Badge> : undefined}
       />
       <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

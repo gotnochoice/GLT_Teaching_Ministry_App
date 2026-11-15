@@ -10,6 +10,7 @@ import { getRules, getStudentProgress } from "../progress";
 import { audit } from "../audit";
 import { studentName } from "../queries";
 import { todayISO } from "../utils";
+import { nextMatricNo } from "../matric";
 import { isWhatsAppGroupLink, toE164 } from "../phone";
 
 const str = (f: FormData, k: string) => String(f.get(k) ?? "").trim();
@@ -31,10 +32,12 @@ export async function createUser(formData: FormData) {
     passwordHash: await bcrypt.hash(password, 10),
     mustChangePassword: true, // the temporary password must be replaced at first login
   });
+  let matricNo: string | undefined;
   if (role === "STUDENT") {
-    await db.insert(students).values({ id: randomUUID(), userId: id, cohortId: str(formData, "cohortId") || null, currentClass: 1, enrolledAt: todayISO() });
+    matricNo = await nextMatricNo();
+    await db.insert(students).values({ id: randomUUID(), userId: id, cohortId: str(formData, "cohortId") || null, currentClass: 1, enrolledAt: todayISO(), matricNo });
   }
-  await audit(admin, "user.created", "user", id, { name, role });
+  await audit(admin, "user.created", "user", id, { name, role, ...(matricNo ? { matricNo } : {}) });
   refresh();
 }
 

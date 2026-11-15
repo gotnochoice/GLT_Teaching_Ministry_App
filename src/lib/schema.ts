@@ -41,6 +41,7 @@ export const students = pgTable("students", {
   id: text("id").primaryKey(),
   userId: text("user_id").notNull().unique().references(() => users.id, { onDelete: "cascade" }),
   cohortId: text("cohort_id").references(() => cohorts.id),
+  matricNo: text("matric_no").unique(), // GLTIFE/YYMM/NNN, assigned at enrolment
   currentClass: integer("current_class").default(1).notNull(),
   status: text("status").default("active").notNull(), // active | paused | withdrawn | graduated
   enrolledAt: text("enrolled_at"),

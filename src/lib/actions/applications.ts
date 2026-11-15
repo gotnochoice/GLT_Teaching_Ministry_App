@@ -10,6 +10,7 @@ import { requireRole } from "../session";
 import { audit } from "../audit";
 import { notify } from "../notify";
 import { APP_NAME, todayISO } from "../utils";
+import { nextMatricNo } from "../matric";
 
 export type JoinState = { ok?: boolean; error?: string };
 
@@ -52,7 +53,7 @@ export async function submitApplication(_prev: JoinState, formData: FormData): P
 const ALPHABET = "abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // no look-alike characters
 const tempPassword = () => Array.from({ length: 10 }, () => ALPHABET[randomInt(ALPHABET.length)]).join("");
 
-export type ApproveState = { ok?: boolean; error?: string; name?: string; email?: string; phone?: string | null; password?: string; emailed?: string };
+export type ApproveState = { ok?: boolean; error?: string; matricNo?: string; name?: string; email?: string; phone?: string | null; password?: string; emailed?: string };
 
 export async function approveApplication(_prev: ApproveState, formData: FormData): Promise<ApproveState> {
   const admin = await requireRole("ADMIN");
@@ -69,20 +70,21 @@ export async function approveApplication(_prev: ApproveState, formData: FormData
     id: userId, name: app.name, email: app.email, phone: app.phone, role: "STUDENT",
     passwordHash: await bcrypt.hash(password, 10), mustChangePassword: true,
   });
-  await db.insert(students).values({ id: randomUUID(), userId, cohortId, currentClass: 1, enrolledAt: todayISO() });
+  const matricNo = await nextMatricNo();
+  await db.insert(students).values({ id: randomUUID(), userId, cohortId, currentClass: 1, enrolledAt: todayISO(), matricNo });
   await db.update(applications).set({ status: "approved", reviewedBy: admin.id, reviewedAt: new Date().toISOString(), userId }).where(eq(applications.id, id));
-  await audit(admin, "application.approved", "application", id, { name: app.name, cohortId });
+  await audit(admin, "application.approved", "application", id, { name: app.name, cohortId, matricNo });
 
   const site = process.env.NEXT_PUBLIC_SITE_URL ?? "";
   const sent = await notify(
     { id: userId, email: app.email, notifyEmail: true },
     null,
     `Welcome to ${APP_NAME}`,
-    `Hello ${app.name}, your request to join has been approved.\n\nLogin: ${site}/login\nEmail: ${app.email}\nTemporary password: ${password}\n\nYou will be asked to choose a new password the first time you log in.`
+    `Hello ${app.name}, your request to join has been approved.\n\nYour matric number: ${matricNo}\nLogin: ${site}/login\nEmail: ${app.email}\nTemporary password: ${password}\n\nYou will be asked to choose a new password the first time you log in.`
   );
   // No revalidatePath here on purpose: re-rendering would drop this request from the pending list and
   // unmount the form that shows the one-time password. The admin dismisses the panel ("Done"), which refreshes.
-  return { ok: true, name: app.name, email: app.email, phone: app.phone, password, emailed: sent.email };
+  return { ok: true, matricNo, name: app.name, email: app.email, phone: app.phone, password, emailed: sent.email };
 }
 
 export async function rejectApplication(formData: FormData) {

@@ -12,9 +12,12 @@ import { WaLink } from "@/components/ui/wa-link";
 
 const sel = "h-9 rounded-md border border-gray-300 bg-white px-2 text-sm";
 
-export default async function AdminStudents() {
+export default async function AdminStudents({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   await requireRole("ADMIN");
-  const rows = await listStudents();
+  const { q } = await searchParams;
+  const needle = (q ?? "").trim().toLowerCase();
+  const all = await listStudents();
+  const rows = needle ? all.filter((r) => [r.user.name, r.user.email, r.student.matricNo].some((v) => (v ?? "").toLowerCase().includes(needle))) : all;
   const allCohorts = await db.select().from(cohorts);
   return (
     <>
@@ -33,12 +36,17 @@ export default async function AdminStudents() {
           </form>
         </CardContent>
       </Card>
+      <form className="mb-4 flex max-w-md gap-2">
+        <Input name="q" defaultValue={q ?? ""} placeholder="Search name, email or matric number…" />
+        <Button type="submit" variant="outline">Search</Button>
+      </form>
       <Card><CardContent className="overflow-x-auto p-0">
         <table className="w-full text-sm">
-          <thead className="border-b bg-gray-50 text-left text-xs uppercase text-gray-500"><tr><th className="px-4 py-3">Student</th><th className="px-4 py-3">Status</th><th className="px-4 py-3">Edit</th></tr></thead>
+          <thead className="border-b bg-gray-50 text-left text-xs uppercase text-gray-500"><tr><th className="px-4 py-3">Matric no.</th><th className="px-4 py-3">Student</th><th className="px-4 py-3">Status</th><th className="px-4 py-3">Edit</th></tr></thead>
           <tbody className="divide-y">
             {rows.map(({ student, user, cohort }) => (
               <tr key={student.id}>
+                <td className="whitespace-nowrap px-4 py-3 font-mono text-xs text-gray-600">{student.matricNo ?? "—"}</td>
                 <td className="px-4 py-3"><p className="font-medium">{user.name}</p><p className="text-xs text-gray-500">{user.email} <WaLink phone={user.phone} text={`Hello ${user.name.split(" ")[0]}, `} /></p></td>
                 <td className="px-4 py-3"><StatusBadge status={student.status} /></td>
                 <td className="px-4 py-3">

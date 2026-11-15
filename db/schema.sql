@@ -105,6 +105,24 @@ DROP TRIGGER IF EXISTS audit_log_no_change ON audit_log;
 CREATE TRIGGER audit_log_no_change BEFORE UPDATE OR DELETE ON audit_log
   FOR EACH ROW EXECUTE FUNCTION audit_log_immutable();
 
+-- Matric numbers: GLTIFE/<YYMM of enrolment>/<NNN>. The sequence restarts at 001 each month.
+ALTER TABLE students ADD COLUMN IF NOT EXISTS matric_no text;
+CREATE UNIQUE INDEX IF NOT EXISTS students_matric_no_key ON students (matric_no);
+CREATE TABLE IF NOT EXISTS matric_counters (period text PRIMARY KEY, last integer NOT NULL DEFAULT 0);
+-- Give every existing student without one a number, oldest first, so nobody is left without.
+DO $$
+DECLARE r record; p text; n integer;
+BEGIN
+  FOR r IN SELECT id, COALESCE(NULLIF(enrolled_at, ''), now()::date::text)::date AS d
+           FROM students WHERE matric_no IS NULL ORDER BY enrolled_at NULLS LAST, id
+  LOOP
+    p := to_char(r.d, 'YYMM');
+    INSERT INTO matric_counters AS c (period, last) VALUES (p, 1)
+      ON CONFLICT (period) DO UPDATE SET last = c.last + 1 RETURNING c.last INTO n;
+    UPDATE students SET matric_no = 'GLTIFE/' || p || '/' || lpad(n::text, 3, '0') WHERE id = r.id;
+  END LOOP;
+END $$;
+
 -- Supabase exposes public-schema tables through its REST API. Turn on Row Level Security with NO
 -- policies so the public anon key can read nothing. The app connects directly as the postgres
 -- role, which bypasses RLS, so it is unaffected.
@@ -113,7 +131,7 @@ DECLARE t text;
 BEGIN
   FOREACH t IN ARRAY ARRAY['users','courses','cohorts','students','class_sessions','attendance','assessments',
     'results','requirement_logs','settings','announcements','applications','internships','internship_logs',
-    'care_requests','care_notes','audit_log','notification_log']
+    'care_requests','care_notes','audit_log','notification_log','matric_counters']
   LOOP EXECUTE format('ALTER TABLE public.%I ENABLE ROW LEVEL SECURITY', t); END LOOP;
 END $$;
 
