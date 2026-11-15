@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/ui/misc";
+import { WaLink } from "@/components/ui/wa-link";
 import { formatDate } from "@/lib/utils";
 
 export default async function CareDetail({ params }: { params: Promise<{ id: string }> }) {
@@ -24,7 +25,7 @@ export default async function CareDetail({ params }: { params: Promise<{ id: str
     <>
       <PageHeader title={r.subject} description={`From ${u.name}${u.phone ? ` · ${u.phone}` : ""}${u.email ? ` · ${u.email}` : ""} · ${formatDate(r.createdAt)}`} />
       <Card className="mb-6"><CardContent className="space-y-3 p-5 text-sm">
-        <div className="flex gap-2"><Badge variant="outline">{r.kind.toLowerCase()}</Badge><Badge variant="warning">{r.status.replace("_", " ")}</Badge></div>
+        <div className="flex items-center gap-2"><WaLink phone={u.phone} text={`Hello ${u.name.split(" ")[0]}, this is the pastoral team following up. `} label="Message on WhatsApp" /><Badge variant="outline">{r.kind.toLowerCase()}</Badge><Badge variant="warning">{r.status.replace("_", " ")}</Badge></div>
         <p className="whitespace-pre-wrap">{r.message}</p>
         <form action={setCareStatus} className="flex flex-wrap gap-2 pt-2">
           <input type="hidden" name="requestId" value={r.id} />

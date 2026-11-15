@@ -7,7 +7,7 @@ import Image from "next/image";
 import { LogOut, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NAV, PASTOR_NAV } from "@/lib/nav";
-import { APP_NAME, cn, dashboardPath, type Role } from "@/lib/utils";
+import { APP_NAME, APP_SHORT_NAME, cn, dashboardPath, type Role } from "@/lib/utils";
 
 export function Navbar({ user }: { user?: { name: string; role: Role; isPastor?: boolean } }) {
   const pathname = usePathname();
@@ -21,7 +21,7 @@ export function Navbar({ user }: { user?: { name: string; role: Role; isPastor?:
         <div className="flex h-14 w-full items-center justify-between px-6">
           <Link href={user ? dashboardPath(user.role) : "/"} className="flex shrink-0 items-center gap-2.5">
             <Image src="/logo-white.png" alt="GLT" width={36} height={34} className="h-9 w-auto" priority />
-            <span className="font-display text-lg uppercase tracking-wide text-white">{APP_NAME}</span>
+            <span className="font-display text-lg uppercase tracking-wide text-white"><span className="hidden md:inline">{APP_NAME}</span><span className="md:hidden">{APP_SHORT_NAME}</span></span>
           </Link>
 
           {user ? (

@@ -28,3 +28,13 @@ body {
   .print\:hidden { display: none !important; }
   body { background: white !important; }
 }
+
+/* Landing page (Masy Academy style, GLT colours) */
+@keyframes float { 0%, 100% { transform: translateY(0) rotate(var(--r, 0deg)); } 50% { transform: translateY(-10px) rotate(var(--r, 0deg)); } }
+@keyframes float-reverse { 0%, 100% { transform: translateY(0) rotate(var(--r, 0deg)); } 50% { transform: translateY(10px) rotate(var(--r, 0deg)); } }
+@keyframes pulse-glow { 0%, 100% { opacity: 0.35; transform: scale(1); } 50% { opacity: 0.55; transform: scale(1.08); } }
+.animate-float { animation: float var(--dur, 5s) ease-in-out infinite; animation-delay: var(--delay, 0s); }
+.animate-float-reverse { animation: float-reverse var(--dur, 6s) ease-in-out infinite; animation-delay: var(--delay, 0s); }
+.animate-pulse-glow { animation: pulse-glow 6s ease-in-out infinite; }
+.bg-dots { background-image: radial-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px); background-size: 28px 28px; }
+@media (prefers-reduced-motion: reduce) { .animate-float, .animate-float-reverse, .animate-pulse-glow { animation: none; } }

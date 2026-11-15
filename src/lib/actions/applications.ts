@@ -52,7 +52,7 @@ export async function submitApplication(_prev: JoinState, formData: FormData): P
 const ALPHABET = "abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // no look-alike characters
 const tempPassword = () => Array.from({ length: 10 }, () => ALPHABET[randomInt(ALPHABET.length)]).join("");
 
-export type ApproveState = { ok?: boolean; error?: string; email?: string; password?: string; emailed?: string; whatsapped?: string };
+export type ApproveState = { ok?: boolean; error?: string; name?: string; email?: string; phone?: string | null; password?: string; emailed?: string };
 
 export async function approveApplication(_prev: ApproveState, formData: FormData): Promise<ApproveState> {
   const admin = await requireRole("ADMIN");
@@ -75,14 +75,14 @@ export async function approveApplication(_prev: ApproveState, formData: FormData
 
   const site = process.env.NEXT_PUBLIC_SITE_URL ?? "";
   const sent = await notify(
-    { id: userId, email: app.email, phone: app.phone, notifyEmail: true, notifyWhatsapp: true },
+    { id: userId, email: app.email, notifyEmail: true },
     null,
     `Welcome to ${APP_NAME}`,
     `Hello ${app.name}, your request to join has been approved.\n\nLogin: ${site}/login\nEmail: ${app.email}\nTemporary password: ${password}\n\nYou will be asked to choose a new password the first time you log in.`
   );
   // No revalidatePath here on purpose: re-rendering would drop this request from the pending list and
   // unmount the form that shows the one-time password. The admin dismisses the panel ("Done"), which refreshes.
-  return { ok: true, email: app.email, password, emailed: sent.email, whatsapped: sent.whatsapp };
+  return { ok: true, name: app.name, email: app.email, phone: app.phone, password, emailed: sent.email };
 }
 
 export async function rejectApplication(formData: FormData) {

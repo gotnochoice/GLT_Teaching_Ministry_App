@@ -58,6 +58,7 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS must_change_password boolean NOT NULL
 ALTER TABLE users ADD COLUMN IF NOT EXISTS notify_email boolean NOT NULL DEFAULT true;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS notify_whatsapp boolean NOT NULL DEFAULT true;
 ALTER TABLE class_sessions ADD COLUMN IF NOT EXISTS recording_url text;
+ALTER TABLE cohorts ADD COLUMN IF NOT EXISTS whatsapp_group_url text;
 
 CREATE TABLE IF NOT EXISTS applications (
   id text PRIMARY KEY, name text NOT NULL, email text NOT NULL, phone text, location text,

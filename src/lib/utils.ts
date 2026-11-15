@@ -5,7 +5,8 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME ?? "GLT Teaching Ministry";
+export const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME ?? "GLT Life Foundation Bible School";
+export const APP_SHORT_NAME = process.env.NEXT_PUBLIC_APP_SHORT_NAME ?? "GLT Bible School";
 
 export const ROLES = ["STUDENT", "TEACHER", "ADMIN"] as const;
 export type Role = (typeof ROLES)[number];

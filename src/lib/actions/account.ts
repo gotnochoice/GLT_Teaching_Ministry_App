@@ -29,7 +29,6 @@ export async function savePreferences(formData: FormData) {
   if (!user) return;
   await db.update(users).set({
     notifyEmail: formData.get("notifyEmail") === "on",
-    notifyWhatsapp: formData.get("notifyWhatsapp") === "on",
     phone: String(formData.get("phone") ?? "").replace(/[\s\-().]/g, "") || null,
   }).where(eq(users.id, user.id));
 }

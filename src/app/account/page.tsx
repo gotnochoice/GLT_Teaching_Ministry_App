@@ -31,12 +31,11 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
         </Card>
         {!forced && (
           <Card>
-            <CardHeader><CardTitle className="text-base">Reminders</CardTitle><CardDescription>Class and due-date reminders are sent by email and WhatsApp.</CardDescription></CardHeader>
+            <CardHeader><CardTitle className="text-base">Reminders</CardTitle><CardDescription>Class and due-date reminders are sent by email.</CardDescription></CardHeader>
             <CardContent>
               <form action={savePreferences} className="space-y-4">
-                <div className="space-y-1.5"><Label htmlFor="phone">WhatsApp / phone number</Label><Input id="phone" name="phone" defaultValue={u?.phone ?? ""} placeholder="+234…" /></div>
+                <div className="space-y-1.5"><Label htmlFor="phone">WhatsApp / phone number</Label><Input id="phone" name="phone" defaultValue={u?.phone ?? ""} placeholder="+234…" /><p className="text-xs text-gray-500">Your teachers and the church office can message you on WhatsApp with this number.</p></div>
                 <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="notifyEmail" defaultChecked={u?.notifyEmail} /> Email reminders{!p.email && <span className="text-xs text-gray-400">(not enabled yet)</span>}</label>
-                <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="notifyWhatsapp" defaultChecked={u?.notifyWhatsapp} /> WhatsApp reminders{!p.whatsapp && <span className="text-xs text-gray-400">(not enabled yet)</span>}</label>
                 <Button type="submit">Save</Button>
               </form>
             </CardContent>

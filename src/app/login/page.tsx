@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
-const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME ?? "GLT Teaching Ministry";
+const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME ?? "GLT Life Foundation Bible School";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -36,7 +36,7 @@ export default function LoginPage() {
         <div className="mb-8 text-center">
           <Link href="/" className="inline-flex items-center gap-2">
             <span className="flex h-12 w-12 items-center justify-center rounded-md bg-brand"><Image src="/logo-white.png" alt="GLT" width={40} height={38} className="h-9 w-auto" priority /></span>
-            <span className="font-display text-2xl uppercase tracking-wide text-ink">{APP_NAME}</span>
+            <span className="font-display text-xl uppercase leading-tight tracking-wide text-ink sm:text-2xl">{APP_NAME}</span>
           </Link>
         </div>
         <Card>

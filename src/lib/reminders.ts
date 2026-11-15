@@ -13,8 +13,8 @@ export async function runReminders(): Promise<Counts> {
   const out: Counts = { sessionReminders: 0, dueReminders: 0, teacherDigests: 0 };
   const site = process.env.NEXT_PUBLIC_SITE_URL ?? "";
   const activeStudents = await db.select({ s: students, u: users }).from(students).innerJoin(users, eq(users.id, students.userId)).where(eq(students.status, "active"));
-  const toRecipient = (u: typeof users.$inferSelect) => ({ id: u.id, email: u.email, phone: u.phone, notifyEmail: u.notifyEmail, notifyWhatsapp: u.notifyWhatsapp });
-  const sent = (r: { email: string; whatsapp: string }) => r.email === "sent" || r.whatsapp === "sent";
+  const toRecipient = (u: typeof users.$inferSelect) => ({ id: u.id, email: u.email, notifyEmail: u.notifyEmail });
+  const sent = (r: { email: string }) => r.email === "sent";
 
   // 1) Classes happening tomorrow
   const tomorrow = dayISO(1);

@@ -10,6 +10,7 @@ import { getRules, getStudentProgress } from "../progress";
 import { audit } from "../audit";
 import { studentName } from "../queries";
 import { todayISO } from "../utils";
+import { isWhatsAppGroupLink, toE164 } from "../phone";
 
 const str = (f: FormData, k: string) => String(f.get(k) ?? "").trim();
 const refresh = () => revalidatePath("/dashboard", "layout");
@@ -83,7 +84,9 @@ export async function createCohort(formData: FormData) {
   const name = str(formData, "name");
   if (!name) return;
   const id = randomUUID();
-  await db.insert(cohorts).values({ id, name, mode: str(formData, "mode") || "in-person", startDate: str(formData, "startDate") || null, teacherId: str(formData, "teacherId") || null });
+  const group = str(formData, "whatsappGroupUrl");
+  if (group && !isWhatsAppGroupLink(group)) return; // must be a chat.whatsapp.com invite link
+  await db.insert(cohorts).values({ id, name, mode: str(formData, "mode") || "in-person", startDate: str(formData, "startDate") || null, teacherId: str(formData, "teacherId") || null, whatsappGroupUrl: group || null });
   await audit(admin, "cohort.created", "cohort", id, { name });
   refresh();
 }
@@ -138,4 +141,26 @@ export async function createAnnouncement(formData: FormData) {
   await db.insert(announcements).values({ id, title, body, createdBy: user.id });
   await audit(user, "announcement.created", "announcement", id, { title });
   refresh();
+}
+
+export async function setCohortGroup(formData: FormData) {
+  const admin = await requireRole("ADMIN");
+  const id = str(formData, "id");
+  const url = str(formData, "whatsappGroupUrl");
+  if (url && !isWhatsAppGroupLink(url)) return;
+  await db.update(cohorts).set({ whatsappGroupUrl: url || null }).where(eq(cohorts.id, id));
+  await audit(admin, "cohort.whatsapp_group", "cohort", id, { url: url || null });
+  refresh();
+}
+
+/** The church office's WhatsApp number, used by the public "Chat with us" button on /join. */
+export async function saveOfficeWhatsapp(formData: FormData) {
+  const admin = await requireRole("ADMIN");
+  const raw = str(formData, "officeWhatsapp");
+  const e164 = raw ? toE164(raw) : "";
+  if (raw && !e164) return;
+  await db.insert(settings).values({ key: "office_whatsapp", value: e164 ?? "" }).onConflictDoUpdate({ target: settings.key, set: { value: e164 ?? "" } });
+  await audit(admin, "settings.office_whatsapp", "settings", null, { to: e164 || null });
+  refresh();
+  revalidatePath("/join");
 }

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PageHeader, StatusBadge } from "@/components/ui/misc";
+import { WaLink } from "@/components/ui/wa-link";
 
 const sel = "h-9 rounded-md border border-gray-300 bg-white px-2 text-sm";
 
@@ -38,7 +39,7 @@ export default async function AdminStudents() {
           <tbody className="divide-y">
             {rows.map(({ student, user, cohort }) => (
               <tr key={student.id}>
-                <td className="px-4 py-3"><p className="font-medium">{user.name}</p><p className="text-xs text-gray-500">{user.email}</p></td>
+                <td className="px-4 py-3"><p className="font-medium">{user.name}</p><p className="text-xs text-gray-500">{user.email} <WaLink phone={user.phone} text={`Hello ${user.name.split(" ")[0]}, `} /></p></td>
                 <td className="px-4 py-3"><StatusBadge status={student.status} /></td>
                 <td className="px-4 py-3">
                   {student.status === "graduated" ? <span className="text-gray-400">Graduated</span> : (

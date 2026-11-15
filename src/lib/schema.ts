@@ -33,6 +33,7 @@ export const cohorts = pgTable("cohorts", {
   startDate: text("start_date"),
   teacherId: text("teacher_id").references(() => users.id),
   status: text("status").default("active").notNull(), // active | completed
+  whatsappGroupUrl: text("whatsapp_group_url"), // chat.whatsapp.com invite link for the class group
   createdAt: now(),
 });
 

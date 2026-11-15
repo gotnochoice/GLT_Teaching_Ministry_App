@@ -7,7 +7,9 @@ import { getMyStudent } from "@/lib/queries";
 import { getStudentProgress } from "@/lib/progress";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { PageHeader, ProgressBar, StatCard } from "@/components/ui/misc";
+import { MessageCircle } from "lucide-react";
 import { formatDate, todayISO, TOTAL_CLASSES } from "@/lib/utils";
 import { CheckCircle2, Circle } from "lucide-react";
 
@@ -80,6 +82,15 @@ export default async function StudentHome() {
               ) : <p className="text-gray-500">No upcoming session scheduled. See <Link className="text-brand hover:underline" href="/dashboard/student/schedule">Schedule</Link>.</p>}
             </CardContent>
           </Card>
+          {cohort?.whatsappGroupUrl && (
+            <Card>
+              <CardHeader><CardTitle className="text-base">Class WhatsApp group</CardTitle></CardHeader>
+              <CardContent className="text-sm">
+                <p className="mb-3 text-gray-600">Reminders and updates for {cohort.name} are posted in the group.</p>
+                <a href={cohort.whatsappGroupUrl} target="_blank" rel="noreferrer"><Button size="sm"><MessageCircle className="h-4 w-4" />Join the group</Button></a>
+              </CardContent>
+            </Card>
+          )}
           <Card>
             <CardHeader><CardTitle className="text-base">Announcements</CardTitle></CardHeader>
             <CardContent className="space-y-3 text-sm">

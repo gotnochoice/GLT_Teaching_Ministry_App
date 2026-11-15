@@ -26,6 +26,11 @@ const DEFAULTS: Record<string, string> = {
   internship_hours_required: "20",
 };
 
+export async function getOfficeWhatsapp(): Promise<string | null> {
+  const [row] = await db.select().from(settings).where(eq(settings.key, "office_whatsapp"));
+  return row?.value || null;
+}
+
 export async function getRules(): Promise<Rules> {
   const rows = await db.select().from(settings);
   const m = { ...DEFAULTS, ...Object.fromEntries(rows.map((r) => [r.key, r.value])) };

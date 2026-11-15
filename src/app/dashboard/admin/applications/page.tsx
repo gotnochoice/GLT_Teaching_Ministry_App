@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Empty, PageHeader } from "@/components/ui/misc";
+import { WaLink } from "@/components/ui/wa-link";
 import { formatDate } from "@/lib/utils";
 
 export default async function AdminApplications() {
@@ -27,7 +28,7 @@ export default async function AdminApplications() {
                 <span className="text-base font-semibold">{a.name}</span><Badge variant="outline">{a.preferredMode}</Badge>
                 <span className="text-xs text-gray-500">{formatDate(a.createdAt)}</span>
               </div>
-              <p className="text-gray-600">{a.email}{a.phone ? ` · ${a.phone}` : ""}{a.location ? ` · ${a.location}` : ""}</p>
+              <p className="text-gray-600">{a.email}{a.phone ? ` · ${a.phone}` : ""}{a.location ? ` · ${a.location}` : ""} <WaLink phone={a.phone} text={`Hello ${a.name.split(" ")[0]}, thank you for asking to join our class. `} /></p>
               {a.message && <p className="rounded bg-gray-50 p-2 text-gray-700">{a.message}</p>}
               <div className="flex flex-wrap items-start gap-4">
                 <ApproveForm id={a.id} cohorts={active.map((c) => ({ id: c.id, name: c.name }))} />
