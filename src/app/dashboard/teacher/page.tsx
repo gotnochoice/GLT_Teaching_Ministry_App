@@ -16,7 +16,7 @@ export default async function TeacherHome() {
   return (
     <>
       <PageHeader title={`Welcome, ${user.name.split(" ")[0]}`} description="Your cohorts at a glance." />
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 max-sm:[&>*:last-child:nth-child(odd)]:col-span-2 auto-rows-fr">
         <StatCard icon={Users} tone="brand" label="My students" value={mine.filter((m) => m.student.status === "active").length} />
         <StatCard icon={ClipboardList} tone="amber" label="Awaiting grading" value={pendingGrades.length} accent />
         <StatCard icon={HandHeart} tone="blue" label="Awaiting verification" value={pendingLogs.length} accent />

@@ -17,7 +17,7 @@ export default async function StudentResults() {
   return (
     <>
       <PageHeader title="Results" description={`Weighted: classwork ${p.rules.weightClasswork}% · exam ${p.rules.weightExam}% · internship ${p.rules.weightInternship}%. Pass mark ${p.rules.passMark}%.`} />
-      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 max-sm:[&>*:last-child:nth-child(odd)]:col-span-2 auto-rows-fr">
         <StatCard icon={Trophy} tone="amber" label="Overall grade" value={p.overall === null ? "—" : `${p.overall}%`} accent />
         <StatCard icon={CheckCircle2} tone="brand" label="Classes passed" value={`${p.classesCompleted}/9`} />
         <StatCard icon={GraduationCap} tone="blue" label="Graduation" value={p.eligibleToGraduate ? "Eligible" : "In progress"} sub={p.missing[0]} />

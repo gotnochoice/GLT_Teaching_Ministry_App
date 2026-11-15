@@ -22,19 +22,22 @@ const TONES = {
   red: "bg-red-100 text-red-600",
 } as const;
 
+/** A clean metric tile: label and icon on top, the number underneath. Same layout and height on every screen. */
 export function StatCard({ label, value, sub, accent, icon: Icon, tone = "brand" }: { label: string; value: React.ReactNode; sub?: string; accent?: boolean; icon?: LucideIcon; tone?: keyof typeof TONES }) {
   return (
-    <Card>
-      <CardContent className="flex items-center gap-3 p-3.5 sm:gap-4 sm:p-5">
-        {Icon && (
-          <span className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-full sm:h-14 sm:w-14", TONES[tone])}>
-            <Icon className="h-5 w-5 sm:h-6 sm:w-6" />
-          </span>
-        )}
-        <div className="min-w-0">
-          <p className="text-xs text-gray-500 sm:text-sm">{label}</p>
-          <p className={cn("font-bold", typeof value === "string" && value.length > 7 ? "text-xl sm:text-2xl" : "text-2xl sm:text-3xl", accent && !Icon ? "text-brand" : "text-gray-900")}>{value}</p>
-          {sub && <p className="mt-0.5 text-xs text-gray-400">{sub}</p>}
+    <Card className="h-full rounded-2xl shadow-none">
+      <CardContent className="flex h-full flex-col justify-between gap-3 p-4 sm:p-5">
+        <div className="flex items-start justify-between gap-2">
+          <p className="text-[13px] font-medium leading-snug text-gray-500 sm:text-sm">{label}</p>
+          {Icon && (
+            <span className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-xl", TONES[tone])}>
+              <Icon className="h-[18px] w-[18px]" />
+            </span>
+          )}
+        </div>
+        <div>
+          <p className={cn("font-bold leading-none tracking-tight", typeof value === "string" && value.length > 7 ? "text-xl sm:text-2xl" : "text-3xl", accent && !Icon ? "text-brand" : "text-gray-900")}>{value}</p>
+          {sub && <p className="mt-1.5 text-xs leading-snug text-gray-400">{sub}</p>}
         </div>
       </CardContent>
     </Card>

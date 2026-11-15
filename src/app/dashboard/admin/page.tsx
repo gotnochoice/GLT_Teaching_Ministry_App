@@ -25,9 +25,10 @@ export default async function AdminHome({ searchParams }: { searchParams: Promis
   return (
     <>
       <PageHeader title="Admin overview" description="Everything across all cohorts." />
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
-        <StatCard icon={Users} tone="brand" label="Active students" value={active.length} sub={`${all.filter((s) => s.student.status === "graduated").length} graduated`} />
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 max-sm:[&>*:last-child:nth-child(odd)]:col-span-2 auto-rows-fr">
+        <StatCard icon={Users} tone="brand" label="Active students" value={active.length} />
         <StatCard icon={Layers} tone="blue" label="Active cohorts" value={cohortCount} />
+        <StatCard icon={GraduationCap} tone="blue" label="Graduated (alumni)" value={all.filter((s) => s.student.status === "graduated").length} />
         <StatCard icon={GraduationCap} tone="amber" label="Ready to graduate" value={ready} accent />
         <StatCard icon={ClipboardList} tone="red" label="Awaiting grading" value={toGrade} />
         <StatCard icon={HandHeart} tone="amber" label="Awaiting verification" value={toVerify} />
