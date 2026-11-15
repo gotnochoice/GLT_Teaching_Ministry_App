@@ -4,6 +4,8 @@ import { getStudentProgress } from "@/lib/progress";
 import { Card, CardContent } from "@/components/ui/card";
 import { PageHeader, StatCard, StatusBadge } from "@/components/ui/misc";
 
+import { Trophy, CheckCircle2, GraduationCap } from "lucide-react";
+
 export default async function StudentResults() {
   const user = await requireRole("STUDENT");
   const { student } = await getMyStudent(user.id);
@@ -16,9 +18,9 @@ export default async function StudentResults() {
     <>
       <PageHeader title="Results" description={`Weighted: classwork ${p.rules.weightClasswork}% · exam ${p.rules.weightExam}% · internship ${p.rules.weightInternship}%. Pass mark ${p.rules.passMark}%.`} />
       <div className="mb-6 grid gap-4 sm:grid-cols-3">
-        <StatCard label="Overall grade" value={p.overall === null ? "—" : `${p.overall}%`} accent />
-        <StatCard label="Classes passed" value={`${p.classesCompleted}/9`} />
-        <StatCard label="Graduation" value={p.eligibleToGraduate ? "Eligible" : "In progress"} sub={p.missing[0]} />
+        <StatCard icon={Trophy} tone="amber" label="Overall grade" value={p.overall === null ? "—" : `${p.overall}%`} accent />
+        <StatCard icon={CheckCircle2} tone="brand" label="Classes passed" value={`${p.classesCompleted}/9`} />
+        <StatCard icon={GraduationCap} tone="blue" label="Graduation" value={p.eligibleToGraduate ? "Eligible" : "In progress"} sub={p.missing[0]} />
       </div>
       <Card><CardContent className="overflow-x-auto p-0">
         <table className="w-full text-sm">

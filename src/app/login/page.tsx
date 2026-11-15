@@ -36,12 +36,12 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-cream px-4 py-12">
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <Link href="/" className="inline-flex items-center gap-2">
-            <span className="flex h-12 w-12 items-center justify-center rounded-md bg-brand"><Image src="/logo-white.png" alt="GLT" width={40} height={38} className="h-9 w-auto" priority /></span>
-            <span className="font-display text-xl uppercase leading-tight tracking-wide text-ink sm:text-2xl">{APP_NAME}</span>
+            <Image src="/logo.jpg" alt="GLT" width={40} height={40} className="h-10 w-10 rounded-full object-cover" priority />
+            <span className="text-lg font-bold leading-tight text-brand sm:text-xl">{APP_NAME}</span>
           </Link>
         </div>
         <Card>

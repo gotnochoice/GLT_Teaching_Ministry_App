@@ -6,6 +6,8 @@ import { listStudents } from "@/lib/queries";
 import { getStudentProgress } from "@/lib/progress";
 import { PageHeader, StatCard } from "@/components/ui/misc";
 
+import { Users, Layers, GraduationCap, ClipboardList, HandHeart } from "lucide-react";
+
 export default async function AdminHome() {
   await requireRole("ADMIN");
   const all = await listStudents();
@@ -18,11 +20,11 @@ export default async function AdminHome() {
     <>
       <PageHeader title="Admin overview" description="Everything across all cohorts." />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <StatCard label="Active students" value={active.length} sub={`${all.filter((s) => s.student.status === "graduated").length} graduated`} />
-        <StatCard label="Active cohorts" value={cohortCount} />
-        <StatCard label="Ready to graduate" value={ready} accent />
-        <StatCard label="Awaiting grading" value={toGrade} />
-        <StatCard label="Awaiting verification" value={toVerify} />
+        <StatCard icon={Users} tone="brand" label="Active students" value={active.length} sub={`${all.filter((s) => s.student.status === "graduated").length} graduated`} />
+        <StatCard icon={Layers} tone="blue" label="Active cohorts" value={cohortCount} />
+        <StatCard icon={GraduationCap} tone="amber" label="Ready to graduate" value={ready} accent />
+        <StatCard icon={ClipboardList} tone="red" label="Awaiting grading" value={toGrade} />
+        <StatCard icon={HandHeart} tone="amber" label="Awaiting verification" value={toVerify} />
       </div>
     </>
   );

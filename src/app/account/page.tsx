@@ -23,7 +23,7 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
     <>
       <Navbar user={user} />
       <main className="mx-auto max-w-xl space-y-6 px-4 py-8">
-        <h1 className="font-display text-3xl uppercase tracking-wide text-ink">My account</h1>
+        <h1 className="text-2xl font-bold text-gray-900">My account</h1>
         {(forced || force) && <p className="rounded-md bg-yellow-50 px-4 py-3 text-sm text-yellow-800">Please choose a new password before continuing. Your temporary password was shared with you by the church office.</p>}
         <Card>
           <CardHeader><CardTitle className="text-base">Change password</CardTitle></CardHeader>

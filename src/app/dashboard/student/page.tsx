@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PageHeader, ProgressBar, StatCard } from "@/components/ui/misc";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, BookOpen, Trophy, HandHeart } from "lucide-react";
 import { formatDate, todayISO, TOTAL_CLASSES } from "@/lib/utils";
 import { CheckCircle2, Circle } from "lucide-react";
 
@@ -45,10 +45,10 @@ export default async function StudentHome() {
         action={student.status === "graduated" ? <Badge variant="orange">Graduated {formatDate(student.graduatedAt)}</Badge> : undefined}
       />
       <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Current class" value={`${student.currentClass} of ${TOTAL_CLASSES}`} sub={current?.title} />
-        <StatCard label="Classes passed" value={p.classesCompleted} sub={`Pass mark ${p.rules.passMark}%`} />
-        <StatCard label="Overall grade" value={p.overall === null ? "—" : `${p.overall}%`} accent />
-        <StatCard label="Prayer / Evangelism" value={`${p.prayers.verified}/${p.prayers.required} · ${p.evangelism.verified}/${p.evangelism.required}`} sub="Verified (not graded)" />
+        <StatCard icon={BookOpen} tone="brand" label="Current class" value={`${student.currentClass} of ${TOTAL_CLASSES}`} sub={current?.title} />
+        <StatCard icon={CheckCircle2} tone="brand" label="Classes passed" value={p.classesCompleted} sub={`Pass mark ${p.rules.passMark}%`} />
+        <StatCard icon={Trophy} tone="amber" label="Overall grade" value={p.overall === null ? "—" : `${p.overall}%`} accent />
+        <StatCard icon={HandHeart} tone="blue" label="Prayer / Evangelism" value={`${p.prayers.verified}/${p.prayers.required} · ${p.evangelism.verified}/${p.evangelism.required}`} sub="Verified (not graded)" />
       </div>
       <Card className="mb-6">
         <CardContent className="p-5">

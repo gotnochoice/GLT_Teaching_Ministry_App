@@ -17,34 +17,34 @@ export function Navbar({ user }: { user?: { name: string; role: Role; isPastor?:
 
   return (
     <>
-      <nav className="sticky top-0 z-50 bg-brand print:hidden">
+      <nav className="sticky top-0 z-50 border-b border-gray-200 bg-white print:hidden">
         <div className="flex h-14 w-full items-center justify-between px-6">
           <Link href={user ? dashboardPath(user.role) : "/"} className="flex shrink-0 items-center gap-2.5">
-            <Image src="/logo-white.png" alt="GLT" width={36} height={34} className="h-9 w-auto" priority />
-            <span className="font-display text-lg uppercase tracking-wide text-white"><span className="hidden md:inline">{APP_NAME}</span><span className="md:hidden">{APP_SHORT_NAME}</span></span>
+            <Image src="/logo.jpg" alt="GLT" width={32} height={32} className="h-8 w-8 rounded-full object-cover" priority />
+            <span className="text-base font-bold tracking-tight text-brand"><span className="hidden md:inline">{APP_NAME}</span><span className="md:hidden">{APP_SHORT_NAME}</span></span>
           </Link>
 
           {user ? (
             <>
               <div className="hidden items-center gap-1 lg:flex">
                 <div className="flex items-center gap-2.5 px-3 py-1.5">
-                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white text-xs font-bold text-brand">
+                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand text-xs font-bold text-white">
                     {firstName.charAt(0).toUpperCase()}
                   </div>
-                  <span className="text-sm font-semibold text-white">{firstName}</span>
-                  <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-semibold uppercase text-white">{user.role.toLowerCase()}</span>
+                  <span className="text-sm font-semibold text-gray-800">{firstName}</span>
+                  <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold uppercase text-gray-500">{user.role.toLowerCase()}</span>
                 </div>
-                <div className="mx-1 h-5 w-px bg-white/30" />
-                <Link href="/account" className="rounded-lg px-3 py-1.5 text-sm font-medium text-white/80 transition-colors hover:bg-white/15 hover:text-white">Account</Link>
+                <div className="mx-1 h-5 w-px bg-gray-200" />
+                <Link href="/account" className="rounded-lg px-3 py-1.5 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900">Account</Link>
                 <button
                   onClick={() => signOut({ callbackUrl: "/" })}
-                  className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-white/80 transition-colors hover:bg-white/15 hover:text-white"
+                  className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-gray-500 transition-colors hover:bg-red-50 hover:text-red-600"
                 >
                   <LogOut className="h-3.5 w-3.5" /> Sign out
                 </button>
               </div>
               <button
-                className="flex h-9 w-9 items-center justify-center rounded-lg text-white hover:bg-white/15 lg:hidden"
+                className="flex h-9 w-9 items-center justify-center rounded-lg text-gray-600 hover:bg-gray-100 lg:hidden"
                 onClick={() => setOpen(true)}
                 aria-label="Open menu"
               >
@@ -52,7 +52,7 @@ export function Navbar({ user }: { user?: { name: string; role: Role; isPastor?:
               </button>
             </>
           ) : (
-            <Link href="/login"><Button size="sm" className="bg-white text-brand hover:bg-cream">Log in</Button></Link>
+            <Link href="/login"><Button variant="ghost" size="sm">Log in</Button></Link>
           )}
         </div>
       </nav>

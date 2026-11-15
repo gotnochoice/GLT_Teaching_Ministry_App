@@ -1,3 +1,4 @@
+import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "./card";
 import { Badge } from "./badge";
@@ -6,7 +7,7 @@ export function PageHeader({ title, description, action }: { title: string; desc
   return (
     <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
       <div>
-        <h1 className="font-display text-3xl uppercase tracking-wide text-ink">{title}</h1>
+        <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
         {description && <p className="mt-1 text-sm text-gray-500">{description}</p>}
       </div>
       {action}
@@ -14,13 +15,27 @@ export function PageHeader({ title, description, action }: { title: string; desc
   );
 }
 
-export function StatCard({ label, value, sub, accent }: { label: string; value: React.ReactNode; sub?: string; accent?: boolean }) {
+const TONES = {
+  brand: "bg-brand/10 text-brand",
+  blue: "bg-blue-100 text-blue-600",
+  amber: "bg-orange-100 text-orange-500",
+  red: "bg-red-100 text-red-600",
+} as const;
+
+export function StatCard({ label, value, sub, accent, icon: Icon, tone = "brand" }: { label: string; value: React.ReactNode; sub?: string; accent?: boolean; icon?: LucideIcon; tone?: keyof typeof TONES }) {
   return (
     <Card>
-      <CardContent className="p-5">
-        <p className="text-xs font-medium uppercase tracking-wide text-gray-500">{label}</p>
-        <p className={cn("mt-1 text-3xl font-bold", accent ? "text-brand" : "text-brand")}>{value}</p>
-        {sub && <p className="mt-1 text-xs text-gray-400">{sub}</p>}
+      <CardContent className="flex items-center gap-4 p-5">
+        {Icon && (
+          <span className={cn("flex h-14 w-14 shrink-0 items-center justify-center rounded-full", TONES[tone])}>
+            <Icon className="h-6 w-6" />
+          </span>
+        )}
+        <div className="min-w-0">
+          <p className="text-sm text-gray-500">{label}</p>
+          <p className={cn("font-bold", typeof value === "string" && value.length > 7 ? "text-2xl" : "text-3xl", accent && !Icon ? "text-brand" : "text-gray-900")}>{value}</p>
+          {sub && <p className="mt-0.5 text-xs text-gray-400">{sub}</p>}
+        </div>
       </CardContent>
     </Card>
   );

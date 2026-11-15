@@ -19,6 +19,8 @@ const LABEL: Record<string, { text: string; v: "success" | "warning" | "destruct
   absent: { text: "Absent", v: "destructive" },
 };
 
+import { CalendarCheck } from "lucide-react";
+
 export default async function StudentSchedule() {
   const user = await requireRole("STUDENT");
   const { student } = await getMyStudent(user.id);
@@ -37,7 +39,7 @@ export default async function StudentSchedule() {
     <>
       <PageHeader title="Schedule & attendance" description="Sunday classes, in person or online. If you miss one, watch the recording and request a make-up." />
       <div className="mb-6 grid gap-4 sm:grid-cols-2">
-        <StatCard label="Attendance" value={a.pct === null ? "—" : `${a.pct}%`} sub={a.total ? `${a.attended} of ${a.total} recorded sessions` : "No sessions recorded yet"} accent={!meets} />
+        <StatCard icon={CalendarCheck} tone="brand" label="Attendance" value={a.pct === null ? "—" : `${a.pct}%`} sub={a.total ? `${a.attended} of ${a.total} recorded sessions` : "No sessions recorded yet"} accent={!meets} />
         <Card><CardContent className="p-5">
           <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Required to graduate</p>
           <p className="mt-1 text-3xl font-bold text-brand">{a.required > 0 ? `${a.required}%` : "None"}</p>

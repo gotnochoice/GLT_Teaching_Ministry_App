@@ -5,6 +5,8 @@ import { requireRole } from "@/lib/session";
 import { listScopedStudents } from "@/lib/queries";
 import { PageHeader, StatCard } from "@/components/ui/misc";
 
+import { Users, ClipboardList, HandHeart } from "lucide-react";
+
 export default async function TeacherHome() {
   const user = await requireRole("TEACHER");
   const mine = await listScopedStudents(user);
@@ -15,9 +17,9 @@ export default async function TeacherHome() {
     <>
       <PageHeader title={`Welcome, ${user.name.split(" ")[0]}`} description="Your cohorts at a glance." />
       <div className="grid gap-4 sm:grid-cols-3">
-        <StatCard label="My students" value={mine.filter((m) => m.student.status === "active").length} />
-        <StatCard label="Awaiting grading" value={pendingGrades.length} accent />
-        <StatCard label="Awaiting verification" value={pendingLogs.length} accent />
+        <StatCard icon={Users} tone="brand" label="My students" value={mine.filter((m) => m.student.status === "active").length} />
+        <StatCard icon={ClipboardList} tone="amber" label="Awaiting grading" value={pendingGrades.length} accent />
+        <StatCard icon={HandHeart} tone="blue" label="Awaiting verification" value={pendingLogs.length} accent />
       </div>
     </>
   );

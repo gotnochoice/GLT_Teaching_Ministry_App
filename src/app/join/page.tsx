@@ -15,7 +15,7 @@ export default async function JoinPage() {
       <main className="mx-auto max-w-lg px-4 py-10">
         <Card>
           <CardHeader>
-            <CardTitle className="font-display text-2xl uppercase tracking-wide">Join the next class</CardTitle>
+            <CardTitle>Join the next class</CardTitle>
             <CardDescription>Tell us a little about yourself. An admin will review your request and set up your account.</CardDescription>
           </CardHeader>
           <CardContent><JoinForm /></CardContent>
