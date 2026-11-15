@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  /* GLT brand: matched to glt.church (bright green header, mint highlight, near-black green, cream) */
+  --color-brand: #238021;
+  --color-brand-dark: #1a6319;
+  --color-brand-light: #b8e5a5;
+  --color-accent: #238021;
+  --color-accent-dark: #1a6319;
+  --color-ink: #0e1510;
+  --color-cream: #f6f5f0;
+  --font-display: var(--font-anton), "Arial Narrow", sans-serif;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+@media print {
+  .print\:hidden { display: none !important; }
+  body { background: white !important; }
+}
