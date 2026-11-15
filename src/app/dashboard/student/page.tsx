@@ -44,7 +44,7 @@ export default async function StudentHome() {
         description={`${student.matricNo ?? "No matric number yet"} · ${cohort ? `${cohort.name} · ${cohort.mode}` : "not placed in a cohort yet"}`}
         action={student.status === "graduated" ? <Badge variant="orange">Graduated {formatDate(student.graduatedAt)}</Badge> : undefined}
       />
-      <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <StatCard icon={BookOpen} tone="brand" label="Current class" value={`${student.currentClass} of ${TOTAL_CLASSES}`} sub={current?.title} />
         <StatCard icon={CheckCircle2} tone="brand" label="Classes passed" value={p.classesCompleted} sub={`Pass mark ${p.rules.passMark}%`} />
         <StatCard icon={Trophy} tone="amber" label="Overall grade" value={p.overall === null ? "—" : `${p.overall}%`} accent />

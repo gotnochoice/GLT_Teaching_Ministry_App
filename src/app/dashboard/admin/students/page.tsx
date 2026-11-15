@@ -21,8 +21,9 @@ export default async function AdminStudents({ searchParams }: { searchParams: Pr
   const allCohorts = await db.select().from(cohorts);
   return (
     <>
-      <PageHeader title="Students" description="Enrol students and manage their class, cohort and status. Graduated students are handled on the Graduation page." />
-      <Card className="mb-8">
+      <PageHeader title="Students" description="Enrol students and manage their class, cohort and status. Graduated students are handled on the Graduation page." action={<a href="#add" className="inline-flex h-9 items-center rounded-md bg-brand px-3 text-sm font-medium text-white lg:hidden">+ Add</a>} />
+      <div className="flex flex-col">
+      <Card id="add" className="order-3 mt-8 scroll-mt-20 lg:order-1 lg:mt-0 mb-8">
         <CardHeader><CardTitle className="text-base">Enrol a student</CardTitle></CardHeader>
         <CardContent>
           <form action={createUser} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -36,11 +37,11 @@ export default async function AdminStudents({ searchParams }: { searchParams: Pr
           </form>
         </CardContent>
       </Card>
-      <form className="mb-4 flex max-w-md gap-2">
+      <form className="order-1 mb-4 flex max-w-md gap-2 lg:order-2">
         <Input name="q" defaultValue={q ?? ""} placeholder="Search name, email or matric number…" />
         <Button type="submit" variant="outline">Search</Button>
       </form>
-      <Card><CardContent className="overflow-x-auto p-0">
+      <Card className="order-2 lg:order-3"><CardContent className="overflow-x-auto p-0">
         <table className="w-full text-sm">
           <thead className="border-b bg-gray-50 text-left text-xs uppercase text-gray-500"><tr><th className="px-4 py-3">Matric no.</th><th className="px-4 py-3">Student</th><th className="px-4 py-3">Status</th><th className="px-4 py-3">Edit</th></tr></thead>
           <tbody className="divide-y">
@@ -65,6 +66,7 @@ export default async function AdminStudents({ searchParams }: { searchParams: Pr
           </tbody>
         </table>
       </CardContent></Card>
+      </div>
     </>
   );
 }

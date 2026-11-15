@@ -6,14 +6,17 @@ import { todayISO } from "./utils";
 export type AdminChartData = {
   newStudents: { month: string; students: number }[];
   perClass: { cls: string; students: number }[];
-  attendance: { date: string; rate: number }[];
-  avgGrade: { cls: string; average: number }[];
+  attendance: { label: string; rate: number; className: string; present: number; total: number }[];
+  avgGrade: { cls: string; tests: number | null; assignments: number | null }[];
 };
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-export async function getAdminChartData(): Promise<AdminChartData> {
-  const all = await db.select().from(students);
+/** All figures can be narrowed to one cohort (cohortId) or cover everyone (undefined). */
+export async function getAdminChartData(cohortId?: string): Promise<AdminChartData> {
+  const everyone = await db.select().from(students);
+  const all = cohortId ? everyone.filter((s) => s.cohortId === cohortId) : everyone;
+  const ids = new Set(all.map((s) => s.id));
 
   // 1) New students per month, last 6 months (by enrolment date)
   const now = new Date();
@@ -30,31 +33,40 @@ export async function getAdminChartData(): Promise<AdminChartData> {
   // 2) Active students in each of the 9 classes
   const perClass = Array.from({ length: 9 }, (_, i) => ({ cls: `Class ${i + 1}`, students: all.filter((s) => s.status === "active" && s.currentClass === i + 1).length }));
 
-  // 3) Attendance rate for the 8 most recent sessions that have recorded attendance
-  const past = await db.select().from(classSessions).where(lte(classSessions.date, todayISO())).orderBy(desc(classSessions.date)).limit(30);
-  const rows = past.length ? await db.select().from(attendance).where(inArray(attendance.sessionId, past.map((p) => p.id))) : [];
-  const att = past
-    .map((p) => {
-      const r = rows.filter((x) => x.sessionId === p.id && x.status !== "excused");
-      const ok = r.filter((x) => x.status === "present" || x.status === "makeup").length;
-      return { date: p.date, rate: r.length ? Math.round((ok / r.length) * 100) : null };
+  // 3) Attendance for the 8 most recent Sundays that have recorded attendance (which class, how many came)
+  const sessions = await db
+    .select({ s: classSessions, c: courses })
+    .from(classSessions)
+    .innerJoin(courses, eq(courses.id, classSessions.courseId))
+    .where(lte(classSessions.date, todayISO()))
+    .orderBy(desc(classSessions.date))
+    .limit(60);
+  const scoped = cohortId ? sessions.filter((x) => x.s.cohortId === cohortId) : sessions;
+  const rows = scoped.length ? await db.select().from(attendance).where(inArray(attendance.sessionId, scoped.map((x) => x.s.id))) : [];
+  const att = scoped
+    .map(({ s, c }) => {
+      const r = rows.filter((x) => x.sessionId === s.id && x.status !== "excused");
+      const present = r.filter((x) => x.status === "present" || x.status === "makeup").length;
+      return r.length ? { date: s.date, label: `${s.date.slice(8, 10)}/${s.date.slice(5, 7)}`, rate: Math.round((present / r.length) * 100), className: `Class ${c.number}: ${c.title}`, present, total: r.length } : null;
     })
-    .filter((x): x is { date: string; rate: number } => x.rate !== null)
+    .filter((x): x is NonNullable<typeof x> => x !== null)
     .slice(0, 8)
     .reverse()
-    .map((x) => ({ date: x.date.slice(5).replace("-", "/"), rate: x.rate }));
+    .map((x) => ({ label: x.label, rate: x.rate, className: x.className, present: x.present, total: x.total }));
 
-  // 4) Average graded score (%) of class tests and assignments, per class
+  // 4) Average graded score (%) per class, tests and assignments shown separately
   const graded = await db
-    .select({ score: results.score, max: assessments.maxScore, number: courses.number })
+    .select({ score: results.score, max: assessments.maxScore, number: courses.number, kind: assessments.kind, studentId: results.studentId })
     .from(results)
     .innerJoin(assessments, eq(assessments.id, results.assessmentId))
     .innerJoin(courses, eq(courses.id, assessments.courseId))
     .where(eq(results.status, "graded"));
-  const avgGrade = Array.from({ length: 9 }, (_, i) => {
-    const g = graded.filter((x) => x.number === i + 1 && x.score !== null);
-    return { cls: `Class ${i + 1}`, average: g.length ? Math.round(g.reduce((a, x) => a + (x.score! / x.max) * 100, 0) / g.length) : 0 };
-  });
+  const mine = graded.filter((g) => g.score !== null && (!cohortId || ids.has(g.studentId)));
+  const avg = (n: number, kind: string) => {
+    const g = mine.filter((x) => x.number === n && x.kind === kind);
+    return g.length ? Math.round(g.reduce((a, x) => a + (x.score! / x.max) * 100, 0) / g.length) : null;
+  };
+  const avgGrade = Array.from({ length: 9 }, (_, i) => ({ cls: `Class ${i + 1}`, tests: avg(i + 1, "TEST"), assignments: avg(i + 1, "ASSIGNMENT") }));
 
   return { newStudents: buckets.map(({ month, students }) => ({ month, students })), perClass, attendance: att, avgGrade };
 }

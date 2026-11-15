@@ -29,7 +29,8 @@ A school portal for GLT Church (God's Love Tabernacle International Church) disc
 - **Internship details**: ministry unit, supervisor, hours log, teacher verification of hours, supervisor sign-off recording, plus the graded internship score. Verified hours (default 20) and sign-off are graduation requirements.
 - **Pastoral care**: students send private concerns/prayer requests that only pastors can read (staff flagged "pastor" in Admin → Teachers & Admins). Admins who are not pastors cannot read them. Opening a request is audited (content is never written to the audit log).
 - **Matric numbers**: every student gets `GLTIFE/YYMM/NNN` at enrolment (e.g. `GLTIFE/2611/001` for the first student enrolled in November 2026; the last part restarts at 001 each month, using Lagos time). Numbers come from an atomic counter, so two simultaneous enrolments never clash, and `db:init` gives a number to any existing student who lacks one. They show on the student dashboard and in the teacher/admin lists, and admins can search by matric number.
-- **Admin charts**: new students per month, attendance by Sunday, students in each class, and average score by class.
+- **Admin charts** (filterable by cohort, with exact values on the bars): new students per month, attendance by Sunday (tooltip shows the class and how many came), where students are now (C1 to C9), and average score per class split into tests and assignments.
+- **Phone view**: bottom tab bar with a More menu, two-column stat cards, 16px inputs (no iOS zoom), and on admin list pages the list comes first with a "+ Add" button that jumps to the form.
 - **Audit log** (Admin → Audit Log): who changed what and when, with old and new values for grades. Append-only: a database trigger rejects edits and deletes.
 
 ## Deploy: Vercel + Supabase
@@ -37,7 +38,7 @@ A school portal for GLT Church (God's Love Tabernacle International Church) disc
 1. In Supabase, copy the connection string (Project Settings → Database). On Vercel use the **Transaction pooler** (port 6543).
 2. In Vercel, set the environment variables from `.env.example` (`DATABASE_URL`, `AUTH_SECRET`, `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_APP_NAME`, `CRON_SECRET`, and `RESEND_API_KEY` / `EMAIL_FROM` if you want email reminders).
 3. Create the tables once, from your computer: `DATABASE_URL="<supabase url>" npm run db:init`. It is safe to re-run after updates (it only adds what is missing).
-4. Create the first admin: run `npm run db:seed` only on a throwaway database, or insert one admin user manually. **Do not seed demo users into production.**
+4. `db/schema.sql` (and `db:init`) also load the starter curriculum: 9 placeholder classes, a test and assignment for each, the final exam, the internship, and the default rules. It never overwrites anything an admin has edited. Then create the first admin: run `npm run db:seed` only on a throwaway database, or insert one admin user manually. **Do not seed demo users into production.**
 5. `db:init` turns on Row Level Security (with no policies) on every table. Supabase exposes tables to the public anon key unless RLS is on, so this keeps student data from being readable through Supabase's REST API. The app connects directly as the `postgres` role, which bypasses RLS and is unaffected. If you ever connect with a different role, give it `BYPASSRLS` or add policies.
 6. Vercel Cron runs `/api/cron/reminders` daily at 07:00 UTC (08:00 Lagos). It requires `CRON_SECRET`; without it the endpoint returns 503.
 

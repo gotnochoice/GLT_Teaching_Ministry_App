@@ -21,8 +21,9 @@ export default async function AdminCohorts() {
   for (const s of await db.select().from(students)) if (s.cohortId && s.status === "active") counts.set(s.cohortId, (counts.get(s.cohortId) ?? 0) + 1);
   return (
     <>
-      <PageHeader title="Cohorts" description="A cohort is a group that goes through the nine classes together. Students leave a cohort by graduating." />
-      <Card className="mb-8">
+      <PageHeader title="Cohorts" description="A cohort is a group that goes through the nine classes together. Students leave a cohort by graduating." action={<a href="#add" className="inline-flex h-9 items-center rounded-md bg-brand px-3 text-sm font-medium text-white lg:hidden">+ Add</a>} />
+      <div className="flex flex-col">
+      <Card id="add" className="order-2 mt-8 scroll-mt-20 lg:order-1 lg:mt-0 mb-8">
         <CardHeader><CardTitle className="text-base">New cohort</CardTitle></CardHeader>
         <CardContent>
           <form action={createCohort} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -35,7 +36,7 @@ export default async function AdminCohorts() {
           </form>
         </CardContent>
       </Card>
-      <Card><CardContent className="divide-y p-0">
+      <Card className="order-1 lg:order-2"><CardContent className="divide-y p-0">
         {list.map(({ c, t }) => (
           <div key={c.id} className="space-y-2 px-5 py-3 text-sm">
            <div className="flex flex-wrap items-center gap-3">
@@ -53,6 +54,7 @@ export default async function AdminCohorts() {
           </div>
         ))}
       </CardContent></Card>
+      </div>
     </>
   );
 }

@@ -15,8 +15,9 @@ export default async function AdminPeople() {
   const staff = await db.select().from(users).where(inArray(users.role, ["TEACHER", "ADMIN"])).orderBy(users.role, users.name);
   return (
     <>
-      <PageHeader title="Teachers & Admins" description="Pastors can read private pastoral-care requests; nobody else can, including admins. Granting or removing this is recorded in the audit log." />
-      <Card className="mb-8">
+      <PageHeader title="Teachers & Admins" description="Pastors can read private pastoral-care requests; nobody else can, including admins. Granting or removing this is recorded in the audit log." action={<a href="#add" className="inline-flex h-9 items-center rounded-md bg-brand px-3 text-sm font-medium text-white lg:hidden">+ Add</a>} />
+      <div className="flex flex-col">
+      <Card id="add" className="order-2 mt-8 scroll-mt-20 lg:order-1 lg:mt-0 mb-8">
         <CardHeader><CardTitle className="text-base">Add a teacher or admin</CardTitle></CardHeader>
         <CardContent>
           <form action={createUser} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -29,16 +30,17 @@ export default async function AdminPeople() {
           </form>
         </CardContent>
       </Card>
-      <Card><CardContent className="divide-y p-0">
+      <Card className="order-1 lg:order-2"><CardContent className="divide-y p-0">
         {staff.map((u) => (
-          <div key={u.id} className="flex items-center gap-3 px-5 py-3 text-sm">
-            <span className="flex-1 font-medium">{u.name}</span><span className="text-gray-500">{u.email}</span>
+          <div key={u.id} className="flex flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3 text-sm sm:px-5">
+            <span className="min-w-0 flex-1 basis-40 font-medium">{u.name}</span><span className="min-w-0 break-all text-gray-500">{u.email}</span>
             <Badge variant={u.role === "ADMIN" ? "orange" : "default"}>{u.role.toLowerCase()}</Badge>
             {u.isPastor && <Badge variant="success">pastor</Badge>}
             <form action={setPastor}><input type="hidden" name="id" value={u.id} /><input type="hidden" name="value" value={u.isPastor ? "false" : "true"} /><Button size="sm" variant="outline" type="submit">{u.isPastor ? "Remove pastor access" : "Make pastor"}</Button></form>
           </div>
         ))}
       </CardContent></Card>
+      </div>
     </>
   );
 }

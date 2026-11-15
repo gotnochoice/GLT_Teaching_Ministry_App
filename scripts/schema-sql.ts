@@ -123,6 +123,35 @@ BEGIN
   END LOOP;
 END $$;
 
+-- Starter data (safe to re-run: never overwrites anything an admin has edited).
+-- The 9 class titles are placeholders: rename them in Admin -> Curriculum.
+INSERT INTO courses (id, number, title, description) VALUES
+  ('course-1', 1, 'Foundations of Faith', 'Salvation, assurance, and the new birth.'),
+  ('course-2', 2, 'Knowing the Bible', 'How to read, study and apply Scripture.'),
+  ('course-3', 3, 'Prayer & Fellowship with God', 'Building a daily prayer life.'),
+  ('course-4', 4, 'The Holy Spirit', 'Who the Holy Spirit is and how He works in the believer.'),
+  ('course-5', 5, 'Walking in Holiness', 'Character, repentance and spiritual disciplines.'),
+  ('course-6', 6, 'The Church & Community', 'Belonging, serving and honouring leadership.'),
+  ('course-7', 7, 'Evangelism & Witnessing', 'Sharing the gospel with confidence.'),
+  ('course-8', 8, 'Stewardship & Giving', 'Time, talent and treasure.'),
+  ('course-9', 9, 'Purpose, Calling & Ministry', 'Discovering and serving in your gift.')
+ON CONFLICT DO NOTHING;
+INSERT INTO assessments (id, course_id, kind, title)
+  SELECT 'test-' || number, id, 'TEST', 'Class ' || number || ' Test' FROM courses WHERE id LIKE 'course-%'
+ON CONFLICT DO NOTHING;
+INSERT INTO assessments (id, course_id, kind, title)
+  SELECT 'assign-' || number, id, 'ASSIGNMENT', 'Class ' || number || ' Assignment' FROM courses WHERE id LIKE 'course-%'
+ON CONFLICT DO NOTHING;
+INSERT INTO assessments (id, kind, title, instructions) VALUES
+  ('exam', 'EXAM', 'Final Exam', 'Covers all nine classes.'),
+  ('internship', 'INTERNSHIP', 'Ministry Internship', 'Serve in a ministry unit; your supervisor submits your assessment.')
+ON CONFLICT DO NOTHING;
+INSERT INTO settings (key, value) VALUES
+  ('pass_mark','50'), ('prayers_required','2'), ('evangelism_required','2'),
+  ('weight_classwork','50'), ('weight_exam','30'), ('weight_internship','20'),
+  ('min_attendance_pct','80'), ('internship_hours_required','20')
+ON CONFLICT DO NOTHING;
+
 -- Supabase exposes public-schema tables through its REST API. Turn on Row Level Security with NO
 -- policies so the public anon key can read nothing. The app connects directly as the postgres
 -- role, which bypasses RLS, so it is unaffected.

@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
@@ -12,6 +12,11 @@ import { APP_NAME, APP_SHORT_NAME, cn, dashboardPath, type Role } from "@/lib/ut
 export function Navbar({ user }: { user?: { name: string; role: Role; isPastor?: boolean } }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  useEffect(() => {
+    const openMenu = () => setOpen(true);
+    window.addEventListener("open-menu", openMenu);
+    return () => window.removeEventListener("open-menu", openMenu);
+  }, []);
   const nav = user ? [...NAV[user.role], ...(user.isPastor ? [PASTOR_NAV] : [])] : [];
   const firstName = user?.name.split(" ")[0] ?? "";
 

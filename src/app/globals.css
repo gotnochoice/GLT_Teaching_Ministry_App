@@ -38,3 +38,9 @@ body {
 .animate-pulse-glow { animation: pulse-glow 6s ease-in-out infinite; }
 .bg-dots { background-image: radial-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px); background-size: 28px 28px; }
 @media (prefers-reduced-motion: reduce) { .animate-float, .animate-float-reverse, .animate-pulse-glow { animation: none; } }
+
+/* Phones: 16px inputs stop iOS from zooming the page when a field is focused; no accidental sideways scroll. */
+html { -webkit-text-size-adjust: 100%; }
+@media (max-width: 639px) {
+  input, select, textarea { font-size: 16px !important; }
+}

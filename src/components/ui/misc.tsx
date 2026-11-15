@@ -7,7 +7,7 @@ export function PageHeader({ title, description, action }: { title: string; desc
   return (
     <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
+        <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">{title}</h1>
         {description && <p className="mt-1 text-sm text-gray-500">{description}</p>}
       </div>
       {action}
@@ -25,15 +25,15 @@ const TONES = {
 export function StatCard({ label, value, sub, accent, icon: Icon, tone = "brand" }: { label: string; value: React.ReactNode; sub?: string; accent?: boolean; icon?: LucideIcon; tone?: keyof typeof TONES }) {
   return (
     <Card>
-      <CardContent className="flex items-center gap-4 p-5">
+      <CardContent className="flex items-center gap-3 p-3.5 sm:gap-4 sm:p-5">
         {Icon && (
-          <span className={cn("flex h-14 w-14 shrink-0 items-center justify-center rounded-full", TONES[tone])}>
-            <Icon className="h-6 w-6" />
+          <span className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-full sm:h-14 sm:w-14", TONES[tone])}>
+            <Icon className="h-5 w-5 sm:h-6 sm:w-6" />
           </span>
         )}
         <div className="min-w-0">
-          <p className="text-sm text-gray-500">{label}</p>
-          <p className={cn("font-bold", typeof value === "string" && value.length > 7 ? "text-2xl" : "text-3xl", accent && !Icon ? "text-brand" : "text-gray-900")}>{value}</p>
+          <p className="text-xs text-gray-500 sm:text-sm">{label}</p>
+          <p className={cn("font-bold", typeof value === "string" && value.length > 7 ? "text-xl sm:text-2xl" : "text-2xl sm:text-3xl", accent && !Icon ? "text-brand" : "text-gray-900")}>{value}</p>
           {sub && <p className="mt-0.5 text-xs text-gray-400">{sub}</p>}
         </div>
       </CardContent>
