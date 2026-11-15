@@ -23,7 +23,12 @@ export default function LoginPage() {
     setError("");
     const result = await signIn("credentials", { email, password, redirect: false });
     if (result?.error) {
-      setError("Wrong email, phone number, or password. Try again.");
+      // "CredentialsSignin" = the details did not match. Anything else is a server/database problem.
+      setError(
+        result.error === "CredentialsSignin"
+          ? "Wrong email, phone number, or password. Try again."
+          : "We could not sign you in because of a problem on our side (not your password). Please try again shortly or tell the church office."
+      );
       setLoading(false);
       return;
     }
