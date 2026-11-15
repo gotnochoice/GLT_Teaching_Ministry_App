@@ -28,7 +28,7 @@ export default async function StudentHome() {
 
   const checklist = [
     { label: `Pass all ${TOTAL_CLASSES} classes`, done: p.classesCompleted === TOTAL_CLASSES, detail: `${p.classesCompleted}/${TOTAL_CLASSES}` },
-    { label: "Final exam", done: !!p.exam?.passed, detail: p.exam?.status === "graded" ? `${p.exam.pct}%` : "Not graded" },
+    { label: "Written & oral exam", done: !!p.exam?.passed, detail: p.exam?.status === "graded" ? `${p.exam.pct}%` : "Not graded" },
     { label: "Internship", done: !!p.internship?.passed, detail: p.internship?.status === "graded" ? `${p.internship.pct}%` : "Not graded" },
     ...(p.rules.internshipHoursRequired > 0 ? [{ label: "Internship hours", done: p.internshipWork.hoursVerified >= p.rules.internshipHoursRequired, detail: `${p.internshipWork.hoursVerified}/${p.rules.internshipHoursRequired} verified` }] : []),
     { label: "Internship sign-off", done: !!p.internshipWork.placement?.signedOff, detail: p.internshipWork.placement?.signedOff ? "Signed off" : p.internshipWork.placement ? "Awaiting" : "No placement yet" },

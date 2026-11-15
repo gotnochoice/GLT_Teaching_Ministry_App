@@ -6,15 +6,15 @@ import { DDL } from "./schema-sql";
 // Placeholder curriculum — rename in Admin → Curriculum or edit here.
 const CODES = ["MMC 101", "MMC 102", "MMC 103", "BFC 201", "BFC 202", "BFC 203", "BFC 204", "BFC 205", "BFC 206"];
 const CLASSES: [string, string][] = [
-  ["Foundations of Faith", "Salvation, assurance, and the new birth."],
-  ["Knowing the Bible", "How to read, study and apply Scripture."],
-  ["Prayer & Fellowship with God", "Building a daily prayer life."],
-  ["The Holy Spirit", "Who the Holy Spirit is and how He works in the believer."],
-  ["Walking in Holiness", "Character, repentance and spiritual disciplines."],
-  ["The Church & Community", "Belonging, serving and honouring leadership."],
-  ["Evangelism & Witnessing", "Sharing the gospel with confidence."],
-  ["Stewardship & Giving", "Time, talent and treasure."],
-  ["Purpose, Calling & Ministry", "Discovering and serving in your gift."],
+  ["Membership Class I", "Welcome to God's Family · Church and Church Attendance (Intro to GLT & You 1) · Importance of Growing up Spiritually"],
+  ["Membership Class II", "Why Salvation? · A Brand New Man"],
+  ["Membership Class III", "Holy Spirit and You · Why Tongues?"],
+  ["Basic Foundation Class I", "Understanding the Integrity of God's Word · The Just Shall Live by Faith"],
+  ["Basic Foundation Class II", "Understanding Righteousness · Fellowshipping with the Father"],
+  ["Basic Foundation Class III", "Renewing the Mind · Quiet Time"],
+  ["Basic Foundation Class IV", "Understanding the Elementary Principles of Christ I: Repentance from Dead Works, Faith Toward God, Baptisms"],
+  ["Basic Foundation Class V", "Understanding the Elementary Principles of Christ II: Laying on of Hands, Resurrection of the Dead, Eternal Judgement"],
+  ["Basic Foundation Class VI", "Walking in Love · You Are Not an Accident · GLT and You 2 · Abounding in Thanksgiving"],
 ];
 
 async function main() {
@@ -41,7 +41,7 @@ async function main() {
     await q("INSERT INTO assessments(id,course_id,kind,title) VALUES($1,$2,'TEST',$3) ON CONFLICT DO NOTHING", [`test-${i + 1}`, id, `${CODES[i]} Test`]);
     await q("INSERT INTO assessments(id,course_id,kind,title) VALUES($1,$2,'ASSIGNMENT',$3) ON CONFLICT DO NOTHING", [`assign-${i + 1}`, id, `${CODES[i]} Assignment`]);
   }
-  await q("INSERT INTO assessments(id,kind,title,instructions) VALUES('exam','EXAM','Final Exam','Covers all nine classes.') ON CONFLICT DO NOTHING");
+  await q("INSERT INTO assessments(id,kind,title,instructions) VALUES('exam','EXAM','Written and Oral Exam','Covers all nine classes. Submit your written paper here; your teacher records one combined score after your oral exam.') ON CONFLICT DO NOTHING");
   await q("INSERT INTO assessments(id,kind,title,instructions) VALUES('internship','INTERNSHIP','Ministry Internship','Serve in a ministry unit; your supervisor submits your assessment.') ON CONFLICT DO NOTHING");
 
   const user = async (id: string, name: string, email: string, role: string) => {

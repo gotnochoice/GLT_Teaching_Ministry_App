@@ -17,7 +17,7 @@ export default async function AdminSettings() {
     ["prayers_required", "Prayers required", r.prayersRequired, "Verified entries needed (ungraded)."],
     ["evangelism_required", "Evangelism required", r.evangelismRequired, "Verified entries needed (ungraded)."],
     ["weight_classwork", "Weight: tests & assignments (%)", r.weightClasswork, "Share of the overall grade."],
-    ["weight_exam", "Weight: final exam (%)", r.weightExam, ""],
+    ["weight_exam", "Weight: written & oral exam (%)", r.weightExam, ""],
     ["weight_internship", "Weight: internship (%)", r.weightInternship, ""],
     ["min_attendance_pct", "Minimum attendance (%)", r.minAttendancePct, "Required to graduate. Excused sessions don't count against a student. 0 turns this off."],
     ["internship_hours_required", "Internship hours required", r.internshipHoursRequired, "Verified hours needed before graduation. 0 turns this off."],

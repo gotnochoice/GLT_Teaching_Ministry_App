@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Empty, PageHeader, ProgressBar, StatusBadge } from "@/components/ui/misc";
 import { formatDate, todayISO } from "@/lib/utils";
+import { MINISTRIES, STEWARD_REQUIREMENTS, UNITS } from "@/lib/church";
 
 export default async function StudentInternship() {
   const user = await requireRole("STUDENT");
@@ -32,7 +33,14 @@ export default async function StudentInternship() {
           </CardHeader>
           <CardContent>
             <form action={saveInternshipDetails} className="space-y-3">
-              <div className="space-y-1.5"><Label htmlFor="ministryUnit">Ministry unit</Label><Input id="ministryUnit" name="ministryUnit" defaultValue={w.placement?.ministryUnit ?? ""} required disabled={locked} placeholder="e.g. Children's church, Ushering, Media" /></div>
+              <div className="space-y-1.5">
+                <Label htmlFor="ministryUnit">Ministry or unit</Label>
+                <Input id="ministryUnit" name="ministryUnit" list="ministry-options" defaultValue={w.placement?.ministryUnit ?? ""} required disabled={locked} placeholder="Choose from the list or type your own" />
+                <datalist id="ministry-options">
+                  {MINISTRIES.map((m) => <option key={m} value={m} />)}
+                  {UNITS.map((u) => <option key={u} value={`${u} unit`} />)}
+                </datalist>
+              </div>
               <div className="space-y-1.5"><Label htmlFor="supervisorName">Supervisor name</Label><Input id="supervisorName" name="supervisorName" defaultValue={w.placement?.supervisorName ?? ""} required disabled={locked} /></div>
               <div className="space-y-1.5"><Label htmlFor="supervisorContact">Supervisor phone or email</Label><Input id="supervisorContact" name="supervisorContact" defaultValue={w.placement?.supervisorContact ?? ""} disabled={locked} /></div>
               <div className="space-y-1.5"><Label htmlFor="startedAt">Start date</Label><Input id="startedAt" name="startedAt" type="date" defaultValue={w.placement?.startedAt ?? ""} disabled={locked} /></div>
@@ -64,6 +72,19 @@ export default async function StudentInternship() {
           </CardContent>
         </Card>
       </div>
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="text-base">What your supervisor looks for</CardTitle>
+          <CardDescription>The requirements of a steward in service, from the Foundation School manual.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ul className="grid gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
+            {STEWARD_REQUIREMENTS.map((r) => (
+              <li key={r.name} className="flex items-baseline justify-between gap-3 border-b border-gray-100 pb-2"><span className="font-medium text-gray-900">{r.name}</span><span className="text-xs text-gray-400">{r.ref}</span></li>
+            ))}
+          </ul>
+        </CardContent>
+      </Card>
       <h2 className="mb-3 text-lg font-semibold">Hours log</h2>
       {logs.length === 0 ? <Empty>No hours logged yet.</Empty> : (
         <Card><CardContent className="divide-y p-0">

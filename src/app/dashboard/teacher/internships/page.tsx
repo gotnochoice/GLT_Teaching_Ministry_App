@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Empty, PageHeader, ProgressBar } from "@/components/ui/misc";
 import { formatDate } from "@/lib/utils";
+import { STEWARD_REQUIREMENTS } from "@/lib/church";
 
 export default async function TeacherInternships() {
   const user = await requireRole("TEACHER", "ADMIN");
@@ -22,6 +23,9 @@ export default async function TeacherInternships() {
   return (
     <>
       <PageHeader title="Internships" description="Verify served hours, record each supervisor's sign-off, then grade the internship on the Grading page." />
+      <p className="mb-4 rounded-md bg-gray-50 px-4 py-3 text-xs text-gray-600">
+        <span className="font-semibold text-gray-800">Steward requirements to assess:</span> {STEWARD_REQUIREMENTS.map((r) => r.name).join(" · ")}.
+      </p>
       {withPlacement.length === 0 ? <Empty>No students have registered an internship placement yet.</Empty> : (
         <div className="space-y-4">
           {withPlacement.map(({ m, p }) => {

@@ -38,7 +38,7 @@ export function todayISO() {
 export const ASSESSMENT_LABEL: Record<string, string> = {
   TEST: "Test",
   ASSIGNMENT: "Assignment",
-  EXAM: "Final Exam",
+  EXAM: "Written & Oral Exam",
   INTERNSHIP: "Internship",
 };
 

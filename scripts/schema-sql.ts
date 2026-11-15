@@ -141,21 +141,34 @@ END $$;
 -- Starter data (safe to re-run: never overwrites anything an admin has edited).
 -- The 9 class titles are placeholders: rename them in Admin -> Curriculum.
 INSERT INTO courses (id, number, code, title, description) VALUES
-  ('course-1', 1, 'MMC 101', 'Foundations of Faith', 'Salvation, assurance, and the new birth.'),
-  ('course-2', 2, 'MMC 102', 'Knowing the Bible', 'How to read, study and apply Scripture.'),
-  ('course-3', 3, 'MMC 103', 'Prayer & Fellowship with God', 'Building a daily prayer life.'),
-  ('course-4', 4, 'BFC 201', 'The Holy Spirit', 'Who the Holy Spirit is and how He works in the believer.'),
-  ('course-5', 5, 'BFC 202', 'Walking in Holiness', 'Character, repentance and spiritual disciplines.'),
-  ('course-6', 6, 'BFC 203', 'The Church & Community', 'Belonging, serving and honouring leadership.'),
-  ('course-7', 7, 'BFC 204', 'Evangelism & Witnessing', 'Sharing the gospel with confidence.'),
-  ('course-8', 8, 'BFC 205', 'Stewardship & Giving', 'Time, talent and treasure.'),
-  ('course-9', 9, 'BFC 206', 'Purpose, Calling & Ministry', 'Discovering and serving in your gift.')
+  ('course-1', 1, 'MMC 101', 'Membership Class I', 'Welcome to God''s Family · Church and Church Attendance (Intro to GLT & You 1) · Importance of Growing up Spiritually'),
+  ('course-2', 2, 'MMC 102', 'Membership Class II', 'Why Salvation? · A Brand New Man'),
+  ('course-3', 3, 'MMC 103', 'Membership Class III', 'Holy Spirit and You · Why Tongues?'),
+  ('course-4', 4, 'BFC 201', 'Basic Foundation Class I', 'Understanding the Integrity of God''s Word · The Just Shall Live by Faith'),
+  ('course-5', 5, 'BFC 202', 'Basic Foundation Class II', 'Understanding Righteousness · Fellowshipping with the Father'),
+  ('course-6', 6, 'BFC 203', 'Basic Foundation Class III', 'Renewing the Mind · Quiet Time'),
+  ('course-7', 7, 'BFC 204', 'Basic Foundation Class IV', 'Understanding the Elementary Principles of Christ I: Repentance from Dead Works, Faith Toward God, Baptisms'),
+  ('course-8', 8, 'BFC 205', 'Basic Foundation Class V', 'Understanding the Elementary Principles of Christ II: Laying on of Hands, Resurrection of the Dead, Eternal Judgement'),
+  ('course-9', 9, 'BFC 206', 'Basic Foundation Class VI', 'Walking in Love · You Are Not an Accident · GLT and You 2 · Abounding in Thanksgiving')
 ON CONFLICT DO NOTHING;
 UPDATE courses SET code = CASE number
   WHEN 1 THEN 'MMC 101' WHEN 2 THEN 'MMC 102' WHEN 3 THEN 'MMC 103'
   WHEN 4 THEN 'BFC 201' WHEN 5 THEN 'BFC 202' WHEN 6 THEN 'BFC 203'
   WHEN 7 THEN 'BFC 204' WHEN 8 THEN 'BFC 205' WHEN 9 THEN 'BFC 206' END
 WHERE code IS NULL AND id = 'course-' || number;
+UPDATE courses c SET title = n.title, description = n.description
+  FROM (VALUES
+    (1, 'Foundations of Faith', 'Membership Class I', 'Welcome to God''s Family · Church and Church Attendance (Intro to GLT & You 1) · Importance of Growing up Spiritually'),
+    (2, 'Knowing the Bible', 'Membership Class II', 'Why Salvation? · A Brand New Man'),
+    (3, 'Prayer & Fellowship with God', 'Membership Class III', 'Holy Spirit and You · Why Tongues?'),
+    (4, 'The Holy Spirit', 'Basic Foundation Class I', 'Understanding the Integrity of God''s Word · The Just Shall Live by Faith'),
+    (5, 'Walking in Holiness', 'Basic Foundation Class II', 'Understanding Righteousness · Fellowshipping with the Father'),
+    (6, 'The Church & Community', 'Basic Foundation Class III', 'Renewing the Mind · Quiet Time'),
+    (7, 'Evangelism & Witnessing', 'Basic Foundation Class IV', 'Understanding the Elementary Principles of Christ I: Repentance from Dead Works, Faith Toward God, Baptisms'),
+    (8, 'Stewardship & Giving', 'Basic Foundation Class V', 'Understanding the Elementary Principles of Christ II: Laying on of Hands, Resurrection of the Dead, Eternal Judgement'),
+    (9, 'Purpose, Calling & Ministry', 'Basic Foundation Class VI', 'Walking in Love · You Are Not an Accident · GLT and You 2 · Abounding in Thanksgiving')
+  ) AS n(number, old_title, title, description)
+  WHERE c.number = n.number AND c.title = n.old_title;
 INSERT INTO assessments (id, course_id, kind, title)
   SELECT 'test-' || number, id, 'TEST', COALESCE(code, 'Class ' || number) || ' Test' FROM courses WHERE id LIKE 'course-%'
 ON CONFLICT DO NOTHING;
@@ -167,9 +180,12 @@ UPDATE assessments a SET title = c.code || CASE a.kind WHEN 'TEST' THEN ' Test' 
   WHERE a.course_id = c.id AND c.code IS NOT NULL AND a.kind IN ('TEST', 'ASSIGNMENT')
     AND a.title = 'Class ' || c.number || CASE a.kind WHEN 'TEST' THEN ' Test' ELSE ' Assignment' END;
 INSERT INTO assessments (id, kind, title, instructions) VALUES
-  ('exam', 'EXAM', 'Final Exam', 'Covers all nine classes.'),
+  ('exam', 'EXAM', 'Written and Oral Exam', 'Covers all nine classes. Submit your written paper here; your teacher records one combined score after your oral exam.'),
   ('internship', 'INTERNSHIP', 'Ministry Internship', 'Serve in a ministry unit; your supervisor submits your assessment.')
 ON CONFLICT DO NOTHING;
+UPDATE assessments SET title = 'Written and Oral Exam',
+  instructions = 'Covers all nine classes. Submit your written paper here; your teacher records one combined score after your oral exam.'
+  WHERE id = 'exam' AND title = 'Final Exam' AND instructions = 'Covers all nine classes.';
 INSERT INTO settings (key, value) VALUES
   ('pass_mark','50'), ('prayers_required','2'), ('evangelism_required','2'),
   ('weight_classwork','50'), ('weight_exam','30'), ('weight_internship','20'),

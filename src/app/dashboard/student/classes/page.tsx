@@ -76,7 +76,7 @@ export default async function StudentClasses() {
         ))}
         {p.exam && (
           <Card>
-            <CardHeader><CardTitle className="text-base">Final Exam</CardTitle><CardDescription>Opens after Class 9.</CardDescription></CardHeader>
+            <CardHeader><CardTitle className="text-base">Written &amp; Oral Exam</CardTitle><CardDescription>Opens after Class 9.</CardDescription></CardHeader>
             <CardContent><AssessmentBlock item={p.exam} canSubmit={!readOnly && student.currentClass >= 9 && p.classes[8]?.complete} /></CardContent>
           </Card>
         )}

@@ -196,7 +196,7 @@ export async function getStudentProgress(studentId: string, currentClass: number
   const classesCompleted = classes.filter((c) => c.complete).length;
   const missing: string[] = [];
   if (classesCompleted < TOTAL_CLASSES) missing.push(`${TOTAL_CLASSES - classesCompleted} class(es) not yet passed`);
-  if (!exam?.passed) missing.push("Final exam not passed");
+  if (!exam?.passed) missing.push("Written and oral exam not passed");
   if (!internship?.passed) missing.push("Internship not passed");
   if (rules.minAttendancePct > 0 && (att.pct === null || att.pct < rules.minAttendancePct))
     missing.push(att.pct === null ? "Attendance: no recorded sessions yet" : `Attendance ${att.pct}% (need ${rules.minAttendancePct}%)`);
